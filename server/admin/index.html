@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Sunora Admin Login</title>
+  <style>
+    :root {
+      --bg-1: #f7f4ff;
+      --bg-2: #efe7ff;
+      --bg-3: #fff7fb;
+      --primary: #7c3aed;
+      --primary-2: #a855f7;
+      --text: #241b4b;
+      --text-soft: #6f6895;
+      --shadow-lg: 0 24px 60px rgba(88, 56, 180, 0.14);
+      --shadow-md: 0 12px 28px rgba(88, 56, 180, 0.11);
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html, body {
+      margin: 0;
+      min-height: 100%;
+      font-family: Inter, Arial, sans-serif;
+      color: var(--text);
+      background:
+        radial-gradient(circle at top left, rgba(168, 85, 247, 0.15), transparent 26%),
+        radial-gradient(circle at top right, rgba(59, 130, 246, 0.12), transparent 24%),
+        linear-gradient(135deg, var(--bg-1), var(--bg-2) 52%, var(--bg-3));
+    }
+
+    body {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+    }
+
+    .login-card {
+      width: 100%;
+      max-width: 460px;
+      background: rgba(255, 255, 255, 0.76);
+      border: 1px solid rgba(255, 255, 255, 0.74);
+      border-radius: 30px;
+      padding: 30px;
+      box-shadow: var(--shadow-lg);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      margin-bottom: 18px;
+    }
+
+    .brand-badge {
+      width: 56px;
+      height: 56px;
+      border-radius: 18px;
+      display: grid;
+      place-items: center;
+      font-size: 24px;
+      color: white;
+      background: linear-gradient(135deg, var(--primary), var(--primary-2));
+      box-shadow: 0 16px 36px rgba(124, 58, 237, 0.34);
+    }
+
+    .brand h1 {
+      margin: 0;
+      font-size: 2rem;
+      letter-spacing: -0.03em;
+    }
+
+    .sub {
+      margin: 0 0 24px;
+      color: var(--text-soft);
+      line-height: 1.6;
+    }
+
+    .field {
+      margin-bottom: 14px;
+    }
+
+    .label {
+      display: block;
+      font-size: 0.9rem;
+      font-weight: 800;
+      margin-bottom: 8px;
+      color: var(--text);
+    }
+
+    .input {
+      width: 100%;
+      padding: 14px 16px;
+      border-radius: 18px;
+      border: 1px solid rgba(124, 58, 237, 0.12);
+      outline: none;
+      font-size: 15px;
+      background: rgba(255, 255, 255, 0.92);
+      color: var(--text);
+      box-shadow: var(--shadow-md);
+    }
+
+    .input:focus {
+      border-color: rgba(124, 58, 237, 0.4);
+    }
+
+    .login-btn {
+      width: 100%;
+      margin-top: 10px;
+      padding: 14px 18px;
+      border: none;
+      border-radius: 999px;
+      background: linear-gradient(135deg, var(--primary), var(--primary-2));
+      color: white;
+      font-size: 1rem;
+      font-weight: 800;
+      cursor: pointer;
+      box-shadow: 0 16px 32px rgba(124, 58, 237, 0.24);
+    }
+
+    .login-btn:disabled {
+      opacity: 0.7;
+      cursor: not-allowed;
+    }
+
+    .error-box {
+      display: none;
+      margin-top: 14px;
+      padding: 12px 14px;
+      border-radius: 16px;
+      background: #fde7ef;
+      color: #9f1239;
+      font-weight: 700;
+      font-size: 0.92rem;
+    }
+
+    .hint {
+      margin-top: 16px;
+      color: var(--text-soft);
+      font-size: 0.9rem;
+      text-align: center;
+    }
+  </style>
+</head>
+<body>
+  <div class="login-card">
+    <div class="brand">
+      <div class="brand-badge">💬</div>
+      <div>
+        <h1>Sunora Admin</h1>
+      </div>
+    </div>
+
+    <p class="sub">Admin panel access ke liye login karo.</p>
+
+    <div class="field">
+      <label class="label" for="username">Username</label>
+      <input id="username" class="input" type="text" placeholder="Enter admin username" />
+    </div>
+
+    <div class="field">
+      <label class="label" for="password">Password</label>
+      <input id="password" class="input" type="password" placeholder="Enter password" />
+    </div>
+
+    <button id="loginBtn" class="login-btn" onclick="loginAdmin()">Login</button>
+
+    <div id="errorBox" class="error-box"></div>
+
+    <div class="hint">Only authorized admin access is allowed.</div>
+  </div>
+
+  <script>
+  const existingAdminToken = localStorage.getItem("adminToken");
+
+if (existingAdminToken) {
+  window.location.href = "/admin/dashboard.html";
+}
+
+    function showError(message) {
+      const box = document.getElementById("errorBox");
+      box.style.display = "block";
+      box.textContent = message;
+    }
+
+    async function loginAdmin() {
+      const username = document.getElementById("username").value.trim();
+      const password = document.getElementById("password").value;
+      const loginBtn = document.getElementById("loginBtn");
+      const errorBox = document.getElementById("errorBox");
+
+      errorBox.style.display = "none";
+      errorBox.textContent = "";
+
+      if (!username || !password) {
+        showError("Username aur password dono required hain.");
+        return;
+      }
+
+      try {
+        loginBtn.disabled = true;
+        loginBtn.textContent = "Logging in...";
+
+        const res = await fetch("/api/admin/login", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify({
+            username,
+            password
+          })
+        });
+
+        const data = await res.json();
+
+        if (!res.ok || !data.success || !data.token) {
+          showError(data.message || "Login failed.");
+          return;
+        }
+
+        localStorage.setItem("adminToken", data.token);
+        window.location.href = "/admin/dashboard.html";
+      } catch (err) {
+        console.error("Admin login error:", err);
+        showError("Login me issue aaya. Server check karo.");
+      } finally {
+        loginBtn.disabled = false;
+        loginBtn.textContent = "Login";
+      }
+    }
+
+    document.getElementById("password").addEventListener("keydown", (e) => {
+      if (e.key === "Enter") {
+        loginAdmin();
+      }
+    });
+  </script>
+</body>
+</html>

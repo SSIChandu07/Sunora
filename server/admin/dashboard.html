@@ -1,0 +1,1521 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0"
+  />
+  <title>Sunora Admin</title>
+  <style>
+    :root {
+      --bg-1: #f7f4ff;
+      --bg-2: #efe7ff;
+      --bg-3: #fff7fb;
+      --panel: rgba(255, 255, 255, 0.72);
+      --border: rgba(124, 58, 237, 0.12);
+      --primary: #7c3aed;
+      --primary-2: #a855f7;
+      --primary-3: #c084fc;
+      --text: #241b4b;
+      --text-soft: #6f6895;
+      --text-faint: #948eb4;
+      --shadow-lg: 0 24px 60px rgba(88, 56, 180, 0.14);
+      --shadow-md: 0 12px 28px rgba(88, 56, 180, 0.11);
+      --shadow-sm: 0 8px 18px rgba(88, 56, 180, 0.08);
+      --radius-xl: 26px;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html,
+    body {
+      margin: 0;
+      min-height: 100%;
+      font-family: Inter, Arial, sans-serif;
+      color: var(--text);
+      background:
+        radial-gradient(circle at top left, rgba(168, 85, 247, 0.15), transparent 26%),
+        radial-gradient(circle at top right, rgba(59, 130, 246, 0.12), transparent 24%),
+        linear-gradient(135deg, var(--bg-1), var(--bg-2) 52%, var(--bg-3));
+    }
+textarea:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.reply-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+    body {
+      padding: 28px;
+    }
+
+    .page-shell {
+      max-width: 1400px;
+      margin: 0 auto;
+    }
+
+    .topbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 20px;
+      margin-bottom: 26px;
+      padding: 22px 24px;
+      border-radius: 28px;
+      background: rgba(255, 255, 255, 0.62);
+      border: 1px solid rgba(255, 255, 255, 0.6);
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
+      box-shadow: var(--shadow-lg);
+    }
+
+    .brand-wrap {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+
+    .brand-badge {
+      width: 56px;
+      height: 56px;
+      border-radius: 18px;
+      display: grid;
+      place-items: center;
+      font-size: 24px;
+      color: white;
+      background: linear-gradient(135deg, var(--primary), var(--primary-2));
+      box-shadow: 0 16px 36px rgba(124, 58, 237, 0.34);
+    }
+
+    .brand-text h1 {
+      margin: 0;
+      font-size: 2.2rem;
+      letter-spacing: -0.03em;
+    }
+
+    .brand-text p {
+      margin: 6px 0 0;
+      color: var(--text-soft);
+      font-size: 0.96rem;
+    }
+
+    .topbar-right {
+      display: flex;
+      gap: 12px;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+
+    .pill-stat {
+      padding: 11px 16px;
+      border-radius: 999px;
+      background: rgba(124, 58, 237, 0.08);
+      border: 1px solid rgba(124, 58, 237, 0.08);
+      color: var(--text);
+      font-weight: 700;
+      font-size: 0.92rem;
+      box-shadow: var(--shadow-sm);
+    }
+
+    .tabs {
+      display: flex;
+      gap: 12px;
+      margin-bottom: 22px;
+      flex-wrap: wrap;
+    }
+
+    .tab-btn {
+      padding: 12px 18px;
+      border: 1px solid rgba(124, 58, 237, 0.12);
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.75);
+      color: var(--text);
+      cursor: pointer;
+      font-weight: 800;
+      font-size: 0.96rem;
+      transition: transform 0.22s ease, box-shadow 0.22s ease, background 0.22s ease, color 0.22s ease;
+      box-shadow: var(--shadow-sm);
+    }
+
+    .tab-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 14px 28px rgba(124, 58, 237, 0.15);
+    }
+
+    .tab-btn.active {
+      background: linear-gradient(135deg, var(--primary), var(--primary-2));
+      color: white;
+      border-color: transparent;
+      box-shadow: 0 16px 32px rgba(124, 58, 237, 0.28);
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: 360px 1fr;
+      gap: 22px;
+      align-items: start;
+    }
+
+    .panel {
+      background: rgba(255, 255, 255, 0.72);
+      border-radius: var(--radius-xl);
+      padding: 20px;
+      box-shadow: var(--shadow-lg);
+      border: 1px solid rgba(255, 255, 255, 0.72);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      transition: transform 0.22s ease, box-shadow 0.22s ease;
+    }
+
+    .panel:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 26px 60px rgba(98, 67, 185, 0.18);
+    }
+
+    .panel h3 {
+      margin: 0 0 18px;
+      font-size: 1.15rem;
+      letter-spacing: -0.02em;
+    }
+
+    .conversation-item,
+    .write-item,
+    .suggestion-item,
+    .feedback-item {
+      position: relative;
+      padding: 16px;
+      border-radius: 18px;
+      background: rgba(255, 255, 255, 0.72);
+      margin-bottom: 12px;
+      cursor: pointer;
+      line-height: 1.55;
+      border: 1px solid rgba(124, 58, 237, 0.08);
+      transition: transform 0.2s ease, box-shadow 0.2s ease, background 0.2s ease, border-color 0.2s ease;
+      overflow: hidden;
+    }
+
+    .conversation-item:hover,
+    .write-item:hover,
+    .suggestion-item:hover,
+    .feedback-item:hover {
+      transform: translateY(-2px) scale(1.01);
+      box-shadow: var(--shadow-md);
+      border-color: rgba(124, 58, 237, 0.16);
+    }
+
+    .conversation-item.active,
+    .write-item.active,
+    .suggestion-item.active,
+    .feedback-item.active {
+      background: linear-gradient(135deg, rgba(196, 181, 253, 0.44), rgba(233, 213, 255, 0.6));
+      border-color: rgba(124, 58, 237, 0.2);
+      box-shadow: 0 18px 34px rgba(124, 58, 237, 0.16);
+    }
+
+    .item-title {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 1.05rem;
+      font-weight: 800;
+      margin-bottom: 6px;
+    }
+
+    .mini-avatar {
+      width: 34px;
+      height: 34px;
+      border-radius: 12px;
+      display: inline-grid;
+      place-items: center;
+      background: linear-gradient(135deg, var(--primary), var(--primary-2));
+      color: white;
+      font-size: 14px;
+      box-shadow: 0 10px 22px rgba(124, 58, 237, 0.22);
+      flex-shrink: 0;
+    }
+
+    .item-preview {
+      color: var(--text);
+      font-size: 0.97rem;
+    }
+
+    .muted {
+      font-size: 12px;
+      color: var(--text-soft);
+      margin-top: 7px;
+    }
+
+    .meta-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 14px;
+      margin-bottom: 16px;
+    }
+
+    .meta-card {
+      background: rgba(255, 255, 255, 0.58);
+      border: 1px solid rgba(124, 58, 237, 0.08);
+      border-radius: 18px;
+      padding: 16px;
+      line-height: 1.6;
+      box-shadow: var(--shadow-sm);
+    }
+
+    .meta-label {
+      font-size: 11px;
+      color: var(--text-faint);
+      margin-bottom: 5px;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      font-weight: 800;
+    }
+
+    .meta-value {
+      font-size: 1rem;
+      font-weight: 800;
+      color: var(--text);
+      word-break: break-word;
+    }
+
+    .messages-shell {
+      background: linear-gradient(180deg, rgba(255,255,255,0.55), rgba(249,247,255,0.82));
+      border: 1px solid rgba(124, 58, 237, 0.08);
+      border-radius: 26px;
+      padding: 12px;
+      box-shadow: inset 0 1px 0 rgba(255,255,255,0.75);
+      margin-bottom: 16px;
+    }
+
+    .messages-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      padding: 6px 6px 12px;
+    }
+
+    .messages-head-title {
+      font-size: 0.95rem;
+      font-weight: 800;
+      color: var(--text-soft);
+    }
+
+    .messages-live {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      color: var(--text-soft);
+      font-size: 0.85rem;
+      font-weight: 700;
+    }
+
+    .live-dot {
+      width: 9px;
+      height: 9px;
+      border-radius: 50%;
+      background: #22c55e;
+      box-shadow: 0 0 0 6px rgba(34, 197, 94, 0.12);
+    }
+
+    .messages {
+      min-height: 360px;
+      max-height: 480px;
+      overflow-y: auto;
+      padding: 8px 6px 6px;
+      border-radius: 18px;
+      scroll-behavior: smooth;
+    }
+
+    .messages::-webkit-scrollbar {
+      width: 7px;
+    }
+
+    .messages::-webkit-scrollbar-thumb {
+      background: rgba(168, 85, 247, 0.3);
+      border-radius: 999px;
+    }
+
+    .msg {
+      margin-bottom: 14px;
+      display: flex;
+      padding: 0 4px;
+      gap: 10px;
+      align-items: flex-end;
+    }
+
+    .msg.user {
+      justify-content: flex-end;
+    }
+
+    .msg.support {
+      justify-content: flex-start;
+    }
+
+    .msg-avatar {
+      width: 34px;
+      height: 34px;
+      border-radius: 12px;
+      display: grid;
+      place-items: center;
+      font-size: 14px;
+      flex-shrink: 0;
+      box-shadow: var(--shadow-sm);
+    }
+
+    .msg.support .msg-avatar {
+      background: rgba(124, 58, 237, 0.12);
+      color: var(--primary);
+      order: 0;
+    }
+
+    .msg.user .msg-avatar {
+      background: linear-gradient(135deg, var(--primary), var(--primary-2));
+      color: white;
+      order: 2;
+    }
+
+    .bubble-wrap {
+      display: flex;
+      flex-direction: column;
+      max-width: 76%;
+    }
+
+    .msg.user .bubble-wrap {
+      align-items: flex-end;
+    }
+
+    .msg.support .bubble-wrap {
+      align-items: flex-start;
+    }
+
+    .bubble {
+      max-width: 100%;
+      padding: 13px 15px;
+      border-radius: 20px;
+      line-height: 1.55;
+      white-space: pre-wrap;
+      word-break: break-word;
+      font-size: 0.97rem;
+      box-shadow: var(--shadow-sm);
+    }
+
+    .user .bubble {
+      background: linear-gradient(135deg, #7c3aed, #a855f7);
+      color: white;
+      border-bottom-right-radius: 8px;
+    }
+
+    .support .bubble {
+      background: rgba(255, 255, 255, 0.82);
+      color: var(--text);
+      border: 1px solid rgba(124, 58, 237, 0.08);
+      border-bottom-left-radius: 8px;
+    }
+
+    .msg-time {
+      margin-top: 6px;
+      font-size: 11px;
+      color: var(--text-faint);
+      font-weight: 700;
+      padding: 0 4px;
+    }
+
+    .composer {
+      background: rgba(255, 255, 255, 0.64);
+      border: 1px solid rgba(124, 58, 237, 0.08);
+      border-radius: 24px;
+      padding: 14px;
+      box-shadow: var(--shadow-sm);
+    }
+.status-open {
+  background: #ddf8e6;
+  color: #166534;
+}
+
+.status-closed {
+  background: #fde0e7;
+  color: #9f1239;
+
+  .closed-chat {
+  opacity: 0.65;
+  border-left: 4px solid #ef4444;
+}
+}
+    textarea {
+      width: 100%;
+      min-height: 110px;
+      border: 1px solid rgba(124, 58, 237, 0.08);
+      border-radius: 18px;
+      padding: 14px 15px;
+      font-size: 14px;
+      outline: none;
+      resize: none;
+      box-sizing: border-box;
+      background: rgba(249, 247, 255, 0.92);
+      color: var(--text);
+    }
+
+    .reply-btn,
+    .action-btn {
+      margin-top: 12px;
+      padding: 12px 18px;
+      border: none;
+      border-radius: 999px;
+      background: linear-gradient(135deg, var(--primary), var(--primary-2));
+      color: white;
+      cursor: pointer;
+      font-weight: 800;
+      box-shadow: 0 14px 24px rgba(124, 58, 237, 0.24);
+    }
+
+    .action-btn.danger {
+      background: linear-gradient(135deg, #ef4444, #ec4899);
+      box-shadow: 0 14px 24px rgba(236, 72, 153, 0.18);
+    }
+
+    .action-row {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+      margin-top: 14px;
+    }
+
+    .hidden {
+      display: none;
+    }
+
+    .write-full {
+      background: rgba(255, 255, 255, 0.66);
+      border: 1px solid rgba(124, 58, 237, 0.08);
+      border-radius: 20px;
+      padding: 16px;
+      line-height: 1.7;
+      white-space: pre-wrap;
+      min-height: 140px;
+      box-shadow: var(--shadow-sm);
+    }
+
+    .status-badge {
+      display: inline-block;
+      padding: 7px 12px;
+      border-radius: 999px;
+      font-size: 12px;
+      font-weight: 900;
+      margin-bottom: 14px;
+      text-transform: capitalize;
+      letter-spacing: 0.04em;
+    }
+
+    .status-private {
+      background: #ece8f8;
+      color: #5d5186;
+    }
+
+    .status-pending {
+      background: #fff0cc;
+      color: #8a6415;
+    }
+
+    .status-approved {
+      background: #ddf8e6;
+      color: #166534;
+    }
+
+    .status-rejected {
+      background: #fde0e7;
+      color: #9f1239;
+    }
+
+    .meta-box {
+      background: rgba(255, 255, 255, 0.66);
+      border: 1px solid rgba(124, 58, 237, 0.08);
+      border-radius: 18px;
+      padding: 14px 16px;
+      margin-bottom: 14px;
+      line-height: 1.8;
+      box-shadow: var(--shadow-sm);
+    }
+
+    .small-title {
+      font-size: 14px;
+      font-weight: 900;
+      margin-bottom: 10px;
+      color: var(--text-soft);
+      letter-spacing: 0.02em;
+    }
+
+    .suggestions-list {
+      margin-top: 18px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .suggestion-card {
+      background: rgba(255, 255, 255, 0.66);
+      border: 1px solid rgba(124, 58, 237, 0.08);
+      border-radius: 18px;
+      padding: 14px;
+      line-height: 1.65;
+      box-shadow: var(--shadow-sm);
+    }
+
+    .empty-box {
+      background: rgba(255, 255, 255, 0.66);
+      border: 1px dashed rgba(124, 58, 237, 0.16);
+      border-radius: 18px;
+      padding: 18px;
+      color: var(--text-soft);
+      box-shadow: var(--shadow-sm);
+    }
+
+    .section-note {
+      color: var(--text-soft);
+      font-size: 0.9rem;
+      margin: -6px 0 14px;
+    }
+
+    .star-row {
+      font-size: 24px;
+      margin-bottom: 8px;
+    }
+
+    @media (max-width: 1100px) {
+      .grid {
+        grid-template-columns: 1fr;
+      }
+
+      .topbar {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+
+      .topbar-right {
+        width: 100%;
+      }
+    }
+
+    @media (max-width: 700px) {
+      body {
+        padding: 16px;
+      }
+
+      .topbar {
+        padding: 18px;
+        border-radius: 24px;
+      }
+
+      .brand-text h1 {
+        font-size: 1.8rem;
+      }
+
+      .meta-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .bubble-wrap {
+        max-width: 88%;
+      }
+
+      .panel {
+        padding: 16px;
+      }
+    }
+  </style>
+</head>
+<body>
+
+    <div class="topbar">
+      <div class="brand-wrap">
+        <div class="brand-badge">💬</div>
+        <div class="brand-text">
+          <h1>Sunora Admin</h1>
+          <p>Safe conversation review panel with a cleaner premium admin experience.</p>
+        </div>
+      </div>
+
+      <div class="topbar-right">
+        <div class="pill-stat" id="conversationCount">Chats: 0</div>
+        <div class="pill-stat" id="writeCount">Writes: 0</div>
+        <div class="pill-stat" id="pendingSuggestionCount">Pending Suggestions: 0</div>
+        <div class="pill-stat" id="feedbackCount">Feedback: 0</div>
+        <button class="pill-stat" onclick="logoutAdmin()" style="cursor:pointer;">Logout</button>
+      </div>
+    </div>
+
+    <div class="wrap">
+      <div class="tabs">
+        <button class="tab-btn active" data-tab="chat">Chats</button>
+        <button class="tab-btn" data-tab="write">Write Entries</button>
+        <button class="tab-btn" data-tab="suggestions">Suggestion Reviews</button>
+        <button class="tab-btn" data-tab="feedback">User Feedback</button>
+      </div>
+
+      <div id="chatTab">
+        <div class="grid">
+          <div class="panel">
+            <h3>Conversations</h3>
+            <div class="section-note">Latest chats with user details and quick last-message preview.</div>
+            <div id="conversationList"></div>
+          </div>
+
+          <div class="panel">
+            <h3>Conversation Detail</h3>
+            <div id="conversationMeta"></div>
+
+            <div class="messages-shell">
+              <div class="messages-head">
+                <div class="messages-head-title">Live Conversation Feed</div>
+                <div class="messages-live">
+                  <span class="live-dot"></span>
+                  Auto refresh
+                </div>
+              </div>
+
+              <div id="messages" class="messages"></div>
+            </div>
+
+            <div class="composer">
+              <textarea
+                id="replyText"
+                placeholder="Reply likho..."
+                onkeydown="handleReplyKeyDown(event)"
+              ></textarea>
+              <button class="reply-btn" onclick="sendReply()">Reply bhejo</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div id="writeTab" class="hidden">
+        <div class="grid">
+          <div class="panel">
+            <h3>Write Entries</h3>
+            <div class="section-note">Private and shared writings with approval control.</div>
+            <div id="writeList"></div>
+          </div>
+
+          <div class="panel">
+            <h3>Selected Entry</h3>
+            <div id="writeDetails">
+              <div class="empty-box">Koi entry select karo.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div id="suggestionsTab" class="hidden">
+        <div class="grid">
+          <div class="panel">
+            <h3>Pending Suggestions</h3>
+            <div class="section-note">Review user suggestions before they become visible.</div>
+            <div id="suggestionList"></div>
+          </div>
+
+          <div class="panel">
+            <h3>Suggestion Detail</h3>
+            <div id="suggestionDetails">
+              <div class="empty-box">Koi suggestion select karo.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div id="feedbackTab" class="hidden">
+        <div class="grid">
+          <div class="panel">
+            <h3>User Feedback</h3>
+            <div class="section-note">Ratings and short reviews submitted by users after chat end.</div>
+            <div id="feedbackList"></div>
+          </div>
+
+          <div class="panel">
+            <h3>Feedback Detail</h3>
+            <div id="feedbackDetails">
+              <div class="empty-box">Koi feedback select karo.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+   const ADMIN_TOKEN = localStorage.getItem("adminToken");
+
+if (!ADMIN_TOKEN) {
+  window.location.href = "/admin/";
+}
+
+    function adminHeaders(extra = {}) {
+      return {
+        Authorization: "Bearer " + ADMIN_TOKEN,
+        ...extra
+      };
+    }
+function logoutAdmin() {
+  localStorage.removeItem("adminToken");
+  window.location.href = "/admin/";
+}
+    let conversations = [];
+    let selectedConversationId = null;
+
+    let writeEntries = [];
+    let selectedWriteId = null;
+
+    let pendingSuggestions = [];
+    let selectedSuggestionKey = null;
+
+    let feedbackEntries = [];
+    let selectedFeedbackId = null;
+
+    function getId(item) {
+      return item?._id || item?.id || null;
+    }
+
+    function shortId(item) {
+      const id = getId(item);
+      return id ? String(id).slice(-6) : "N/A";
+    }
+
+    function escapeHtml(text) {
+      if (!text) return "";
+      return String(text)
+        .replaceAll("&", "&amp;")
+        .replaceAll("<", "&lt;")
+        .replaceAll(">", "&gt;")
+        .replaceAll('"', "&quot;")
+        .replaceAll("'", "&#039;");
+    }
+
+    function prettyValue(value, fallback = "Not provided") {
+      if (!value || String(value).trim() === "") return fallback;
+      return escapeHtml(value);
+    }
+
+    function prettyGender(value) {
+      if (!value || String(value).trim() === "") return "Not provided";
+      if (value === "male") return "Male";
+      if (value === "female") return "Female";
+      if (value === "prefer_not_to_say") return "Prefer not to say";
+      return escapeHtml(value);
+    }
+
+    function prettyLanguage(value) {
+      if (!value || String(value).trim() === "") return "Hinglish";
+      if (value === "hindi") return "Hindi";
+      if (value === "english") return "English";
+      if (value === "hinglish") return "Hinglish";
+      return escapeHtml(value);
+    }
+
+    function formatStatusClass(status) {
+      if (status === "approved") return "status-approved";
+      if (status === "rejected") return "status-rejected";
+      if (status === "pending") return "status-pending";
+      return "status-private";
+    }
+
+    function getInitial(name) {
+      const safe = (name || "").trim();
+      return safe ? safe.charAt(0).toUpperCase() : "A";
+    }
+
+    function formatTime(value) {
+  if (!value) return "";
+
+  const date = new Date(value);
+
+  const day = date.toLocaleDateString([], {
+    day: "2-digit",
+    month: "short"
+  });
+
+  const time = date.toLocaleTimeString([], {
+    hour: "2-digit",
+    minute: "2-digit"
+  });
+
+  return `${day}, ${time}`;
+}
+
+    function updateTopStats() {
+      const convCountEl = document.getElementById("conversationCount");
+      const writeCountEl = document.getElementById("writeCount");
+      const pendingCountEl = document.getElementById("pendingSuggestionCount");
+      const feedbackCountEl = document.getElementById("feedbackCount");
+
+      if (convCountEl) convCountEl.textContent = `Chats: ${conversations.length}`;
+      if (writeCountEl) writeCountEl.textContent = `Writes: ${writeEntries.length}`;
+      if (pendingCountEl) pendingCountEl.textContent = `Pending Suggestions: ${pendingSuggestions.length}`;
+      if (feedbackCountEl) feedbackCountEl.textContent = `Feedback: ${feedbackEntries.length}`;
+    }
+
+    function showTab(tab) {
+      document.getElementById("chatTab").classList.toggle("hidden", tab !== "chat");
+      document.getElementById("writeTab").classList.toggle("hidden", tab !== "write");
+      document.getElementById("suggestionsTab").classList.toggle("hidden", tab !== "suggestions");
+      document.getElementById("feedbackTab").classList.toggle("hidden", tab !== "feedback");
+
+      document.querySelectorAll(".tab-btn").forEach((btn) => {
+        btn.classList.toggle("active", btn.dataset.tab === tab);
+      });
+    }
+
+    document.querySelectorAll(".tab-btn").forEach((btn) => {
+      btn.addEventListener("click", () => {
+        showTab(btn.dataset.tab);
+      });
+    });
+
+    function handleReplyKeyDown(e) {
+      if (e.key === "Enter" && !e.shiftKey) {
+        e.preventDefault();
+        sendReply();
+      }
+    }
+
+    async function loadConversations() {
+      try {
+        const res = await fetch("/api/admin/conversations", {
+          headers: adminHeaders()
+        });
+
+       if (res.status === 401 || res.status === 403) {
+  localStorage.removeItem("adminToken");
+  window.location.href = "/admin/";
+  return;
+}
+
+        const data = await res.json();
+        conversations = Array.isArray(data) ? data : [];
+
+        if (!selectedConversationId && conversations.length > 0) {
+          selectedConversationId = getId(conversations[0]);
+        }
+
+        const stillExists = conversations.some(
+          (conv) => getId(conv) === selectedConversationId
+        );
+
+        if (!stillExists && conversations.length > 0) {
+          selectedConversationId = getId(conversations[0]);
+        }
+
+        renderConversations();
+        renderConversationMeta();
+        toggleReplyComposer();
+        renderMessages();
+        updateTopStats();
+      } catch (err) {
+        console.error("Load conversations error:", err);
+      }
+    }
+
+    function renderConversations() {
+      const list = document.getElementById("conversationList");
+      list.innerHTML = "";
+
+      if (!conversations.length) {
+        list.innerHTML = `<div class="empty-box">Abhi koi conversation nahi hai.</div>`;
+        return;
+      }
+
+      conversations.forEach((conv) => {
+        const convId = getId(conv);
+        const item = document.createElement("div");
+        const isClosed = conv.status === "closed";
+
+item.className =
+  "conversation-item" +
+  (convId === selectedConversationId ? " active" : "") +
+  (isClosed ? " closed-chat" : "");
+
+        const lastMsg = conv.messages?.[conv.messages.length - 1];
+        const previewText = lastMsg ? lastMsg.text : "No messages yet";
+
+        item.innerHTML = `
+  <div class="item-title">
+    <span class="mini-avatar">${getInitial(conv.username)}</span>
+    <span>${prettyValue(conv.username, "Anonymous")} • #${shortId(conv)}</span>
+  </div>
+  <div class="item-preview">${escapeHtml(previewText)}</div>
+
+  <div class="muted">
+    ${prettyLanguage(conv.language)} • ${prettyGender(conv.gender)}
+  </div>
+
+  <div style="margin-top:6px;">
+    <span class="status-badge ${conv.status === "closed" ? "status-closed" : "status-open"}">
+      ${conv.status === "closed" ? "Closed" : "Open"}
+    </span>
+  </div>
+`;
+
+        item.onclick = () => {
+          selectedConversationId = convId;
+          renderConversations();
+          renderConversationMeta();
+          renderMessages();
+        };
+
+        list.appendChild(item);
+      });
+    }
+
+    function renderConversationMeta() {
+      const wrap = document.getElementById("conversationMeta");
+      const selected = conversations.find(
+        (c) => getId(c) === selectedConversationId
+      );
+
+      if (!selected) {
+        wrap.innerHTML = `<div class="empty-box">Koi conversation select nahi hai.</div>`;
+        return;
+      }
+
+      wrap.innerHTML = `
+        <div class="meta-grid">
+          <div class="meta-card">
+            <div class="meta-label">Username</div>
+            <div class="meta-value">${prettyValue(selected.username, "Anonymous")}</div>
+          </div>
+
+          <div class="meta-card">
+            <div class="meta-label">Language</div>
+            <div class="meta-value">${prettyLanguage(selected.language)}</div>
+          </div>
+
+          <div class="meta-card">
+            <div class="meta-label">Gender</div>
+            <div class="meta-value">${prettyGender(selected.gender)}</div>
+          </div>
+
+          <div class="meta-card">
+            <div class="meta-label">Status</div>
+            <div class="meta-value">${prettyValue(selected.status, "open")}</div>
+          </div>
+        </div>
+      `;
+    }
+
+    function renderMessages() {
+      const selected = conversations.find(
+        (c) => getId(c) === selectedConversationId
+      );
+
+      const messagesBox = document.getElementById("messages");
+      messagesBox.innerHTML = "";
+
+      if (!selected) {
+        messagesBox.innerHTML = `<div class="empty-box">Koi conversation select nahi hai.</div>`;
+        return;
+      }
+
+      (selected.messages || []).forEach((msg) => {
+        const row = document.createElement("div");
+        row.className = `msg ${msg.sender}`;
+
+        const avatar = document.createElement("div");
+        avatar.className = "msg-avatar";
+        avatar.textContent = msg.sender === "user" ? "U" : "S";
+
+        const bubbleWrap = document.createElement("div");
+        bubbleWrap.className = "bubble-wrap";
+
+        const bubble = document.createElement("div");
+        bubble.className = "bubble";
+        bubble.innerText = msg.text;
+
+        const time = document.createElement("div");
+        time.className = "msg-time";
+        time.textContent = formatTime(msg.time);
+
+        bubbleWrap.appendChild(bubble);
+        bubbleWrap.appendChild(time);
+
+        if (msg.sender === "user") {
+          row.appendChild(bubbleWrap);
+          row.appendChild(avatar);
+        } else {
+          row.appendChild(avatar);
+          row.appendChild(bubbleWrap);
+        }
+
+        messagesBox.appendChild(row);
+      });
+
+      messagesBox.scrollTop = messagesBox.scrollHeight;
+    }
+
+    async function sendReply() {
+      const selected = conversations.find(
+  (c) => getId(c) === selectedConversationId
+);
+
+if (!selected || selected.status === "closed") {
+  alert("Ye chat closed hai. Reply allowed nahi hai.");
+  return;
+}
+      try {
+        const replyText = document.getElementById("replyText").value.trim();
+        if (!replyText || !selectedConversationId) return;
+
+        const res = await fetch("/api/admin/reply", {
+          method: "POST",
+          headers: adminHeaders({
+            "Content-Type": "application/json"
+          }),
+          body: JSON.stringify({
+            conversationId: selectedConversationId,
+            text: replyText
+          })
+        });
+
+        const data = await res.json();
+
+        if (!res.ok || !data.success) {
+          alert(data.message || "Reply bhejne me issue aaya.");
+          return;
+        }
+
+        document.getElementById("replyText").value = "";
+        await loadConversations();
+      } catch (err) {
+        console.error("Send reply error:", err);
+        alert("Reply bhejne me issue aaya.");
+      }
+    }
+
+    async function loadWriteEntries() {
+      try {
+        const res = await fetch("/api/admin/write", {
+          headers: adminHeaders()
+        });
+
+        if (res.status === 401 || res.status === 403) {
+  localStorage.removeItem("adminToken");
+  window.location.href = "/admin/";
+  return;
+}
+
+        const data = await res.json();
+        writeEntries = Array.isArray(data) ? data : [];
+
+        if (!selectedWriteId && writeEntries.length > 0) {
+          selectedWriteId = getId(writeEntries[0]);
+        }
+
+        renderWriteEntries();
+        renderWriteDetails();
+        buildPendingSuggestions();
+        updateTopStats();
+      } catch (err) {
+        console.error("Load write entries error:", err);
+      }
+    }
+
+    function renderWriteEntries() {
+      const list = document.getElementById("writeList");
+      list.innerHTML = "";
+
+      if (!writeEntries.length) {
+        list.innerHTML = `<div class="empty-box">Abhi koi write entry nahi hai.</div>`;
+        return;
+      }
+
+      writeEntries.forEach((entry) => {
+        const entryId = getId(entry);
+        const item = document.createElement("div");
+        item.className = "write-item" + (entryId === selectedWriteId ? " active" : "");
+
+        const preview =
+          entry.text.length > 80 ? entry.text.slice(0, 80) + "..." : entry.text;
+
+        item.innerHTML = `
+          <div class="item-title">
+            <span class="mini-avatar">${getInitial(entry.username)}</span>
+            <span>${prettyValue(entry.username, "Anonymous")} • #${shortId(entry)}</span>
+          </div>
+          <div class="item-preview">${escapeHtml(preview)}</div>
+          <div class="muted">
+            ${prettyLanguage(entry.language)} • ${prettyGender(entry.gender)} • status: ${escapeHtml(entry.approvalStatus || "private")}
+          </div>
+        `;
+
+        item.onclick = () => {
+          selectedWriteId = entryId;
+          renderWriteEntries();
+          renderWriteDetails();
+        };
+
+        list.appendChild(item);
+      });
+    }
+
+    function renderWriteDetails() {
+      const wrap = document.getElementById("writeDetails");
+      const entry = writeEntries.find((e) => getId(e) === selectedWriteId);
+
+      if (!entry) {
+        wrap.innerHTML = `<div class="empty-box">Koi entry select karo.</div>`;
+        return;
+      }
+
+      wrap.innerHTML = `
+        <div class="status-badge ${formatStatusClass(entry.approvalStatus)}">
+          ${escapeHtml(entry.approvalStatus || "private")}
+        </div>
+
+        <div class="meta-box">
+          <div><strong>Entry ID:</strong> ${escapeHtml(getId(entry))}</div>
+          <div><strong>Username:</strong> ${prettyValue(entry.username, "Anonymous")}</div>
+          <div><strong>Language:</strong> ${prettyLanguage(entry.language)}</div>
+          <div><strong>Gender:</strong> ${prettyGender(entry.gender)}</div>
+          <div><strong>Consent to share:</strong> ${entry.consentToShare ? "Yes" : "No"}</div>
+          <div><strong>Total suggestions:</strong> ${(entry.suggestions || []).length}</div>
+        </div>
+
+        <div class="write-full">${escapeHtml(entry.text)}</div>
+
+        <div class="action-row">
+          <button class="action-btn" onclick="reviewWriteEntry('approved')">Approve</button>
+          <button class="action-btn danger" onclick="reviewWriteEntry('rejected')">Reject</button>
+        </div>
+
+        <div class="suggestions-list">
+          <div class="small-title">All Suggestions</div>
+          ${
+            entry.suggestions && entry.suggestions.length
+              ? entry.suggestions
+                  .map(
+                    (s) => `
+                    <div class="suggestion-card">
+                      <strong>Status:</strong> ${escapeHtml(s.status)}<br>
+                      ${escapeHtml(s.text)}
+                    </div>
+                  `
+                  )
+                  .join("")
+              : `<div class="empty-box">Is entry par abhi koi suggestion nahi hai.</div>`
+          }
+        </div>
+      `;
+    }
+
+    async function reviewWriteEntry(action) {
+      const entry = writeEntries.find((e) => getId(e) === selectedWriteId);
+      if (!entry) return;
+
+      try {
+        const res = await fetch(`/api/admin/write/${getId(entry)}/review`, {
+          method: "POST",
+          headers: adminHeaders({
+            "Content-Type": "application/json"
+          }),
+          body: JSON.stringify({ action })
+        });
+
+        const data = await res.json();
+
+        if (!res.ok || !data.success) {
+          alert(data.message || "Review update nahi hua.");
+          return;
+        }
+
+        await loadWriteEntries();
+      } catch (err) {
+        console.error("Review write entry error:", err);
+        alert("Review update nahi hua.");
+      }
+    }
+
+    function buildPendingSuggestions() {
+      pendingSuggestions = [];
+
+      writeEntries.forEach((entry) => {
+        (entry.suggestions || []).forEach((suggestion) => {
+          if (suggestion.status === "pending") {
+            pendingSuggestions.push({
+              entryId: getId(entry),
+              entryText: entry.text,
+              username: entry.username || "",
+              language: entry.language || "hinglish",
+              gender: entry.gender || "",
+              suggestionId: suggestion._id,
+              suggestionText: suggestion.text,
+              suggestionStatus: suggestion.status
+            });
+          }
+        });
+      });
+
+      if (!selectedSuggestionKey && pendingSuggestions.length > 0) {
+        selectedSuggestionKey = `${pendingSuggestions[0].entryId}_${pendingSuggestions[0].suggestionId}`;
+      }
+
+      const stillExists = pendingSuggestions.some(
+        (item) => `${item.entryId}_${item.suggestionId}` === selectedSuggestionKey
+      );
+
+      if (!stillExists && pendingSuggestions.length > 0) {
+        selectedSuggestionKey = `${pendingSuggestions[0].entryId}_${pendingSuggestions[0].suggestionId}`;
+      }
+
+      renderSuggestionList();
+      renderSuggestionDetails();
+      updateTopStats();
+    }
+
+    function renderSuggestionList() {
+      const list = document.getElementById("suggestionList");
+      list.innerHTML = "";
+
+      if (!pendingSuggestions.length) {
+        list.innerHTML = `<div class="empty-box">Abhi koi pending suggestion nahi hai.</div>`;
+        return;
+      }
+
+      pendingSuggestions.forEach((item) => {
+        const key = `${item.entryId}_${item.suggestionId}`;
+        const div = document.createElement("div");
+        div.className = "suggestion-item" + (key === selectedSuggestionKey ? " active" : "");
+
+        const preview =
+          item.suggestionText.length > 80
+            ? item.suggestionText.slice(0, 80) + "..."
+            : item.suggestionText;
+
+        div.innerHTML = `
+          <div class="item-title">
+            <span class="mini-avatar">${getInitial(item.username)}</span>
+            <span>${prettyValue(item.username, "Anonymous")} • Entry #${String(item.entryId).slice(-6)}</span>
+          </div>
+          <div class="item-preview">${escapeHtml(preview)}</div>
+          <div class="muted">${prettyLanguage(item.language)} • ${prettyGender(item.gender)}</div>
+        `;
+
+        div.onclick = () => {
+          selectedSuggestionKey = key;
+          renderSuggestionList();
+          renderSuggestionDetails();
+        };
+
+        list.appendChild(div);
+      });
+    }
+
+    function renderSuggestionDetails() {
+      const wrap = document.getElementById("suggestionDetails");
+
+      const item = pendingSuggestions.find(
+        (x) => `${x.entryId}_${x.suggestionId}` === selectedSuggestionKey
+      );
+
+      if (!item) {
+        wrap.innerHTML = `<div class="empty-box">Koi suggestion select karo.</div>`;
+        return;
+      }
+
+      wrap.innerHTML = `
+        <div class="meta-box">
+          <div><strong>Entry ID:</strong> ${escapeHtml(item.entryId)}</div>
+          <div><strong>Username:</strong> ${prettyValue(item.username, "Anonymous")}</div>
+          <div><strong>Language:</strong> ${prettyLanguage(item.language)}</div>
+          <div><strong>Gender:</strong> ${prettyGender(item.gender)}</div>
+          <div><strong>Suggestion ID:</strong> ${escapeHtml(item.suggestionId)}</div>
+          <div><strong>Status:</strong> ${escapeHtml(item.suggestionStatus)}</div>
+        </div>
+
+        <div class="small-title">Original Entry</div>
+        <div class="write-full" style="margin-bottom: 14px;">${escapeHtml(item.entryText)}</div>
+
+        <div class="small-title">Suggestion</div>
+        <div class="write-full">${escapeHtml(item.suggestionText)}</div>
+
+        <div class="action-row">
+          <button class="action-btn" onclick="reviewSuggestion('approved')">Approve Suggestion</button>
+          <button class="action-btn danger" onclick="reviewSuggestion('rejected')">Reject Suggestion</button>
+        </div>
+      `;
+    }
+
+    async function reviewSuggestion(action) {
+      const item = pendingSuggestions.find(
+        (x) => `${x.entryId}_${x.suggestionId}` === selectedSuggestionKey
+      );
+
+      if (!item) return;
+
+      try {
+        const res = await fetch(
+          `/api/admin/write/${item.entryId}/suggestion/${item.suggestionId}/review`,
+          {
+            method: "POST",
+            headers: adminHeaders({
+              "Content-Type": "application/json"
+            }),
+            body: JSON.stringify({ action })
+          }
+        );
+
+        const data = await res.json();
+
+        if (!res.ok || !data.success) {
+          alert(data.message || "Suggestion review update nahi hua.");
+          return;
+        }
+
+        await loadWriteEntries();
+      } catch (err) {
+        console.error("Review suggestion error:", err);
+        alert("Suggestion review update nahi hua.");
+      }
+    }
+function toggleReplyComposer() {
+  const selected = conversations.find(
+    (c) => getId(c) === selectedConversationId
+  );
+
+  const replyBox = document.getElementById("replyText");
+  const replyBtn = document.querySelector(".reply-btn");
+
+  if (!replyBox || !replyBtn) return;
+
+  const isClosed = selected && selected.status === "closed";
+
+  replyBox.disabled = isClosed;
+  replyBtn.disabled = isClosed;
+
+  if (isClosed) {
+    replyBox.placeholder = "Chat closed hai. Reply disabled.";
+    replyBox.value = "";
+    replyBtn.textContent = "Closed";
+  } else {
+    replyBox.placeholder = "Reply likho...";
+    replyBtn.textContent = "Reply bhejo";
+  }
+}
+    async function loadFeedbackEntries() {
+      try {
+        const res = await fetch("/api/admin/feedback", {
+          headers: adminHeaders()
+        });
+
+       if (res.status === 401 || res.status === 403) {
+  localStorage.removeItem("adminToken");
+  window.location.href = "/admin/";
+  return;
+}
+
+        const data = await res.json();
+        feedbackEntries = Array.isArray(data) ? data : [];
+
+        if (!selectedFeedbackId && feedbackEntries.length > 0) {
+          selectedFeedbackId = getId(feedbackEntries[0]);
+        }
+
+        const stillExists = feedbackEntries.some(
+          (item) => getId(item) === selectedFeedbackId
+        );
+
+        if (!stillExists && feedbackEntries.length > 0) {
+          selectedFeedbackId = getId(feedbackEntries[0]);
+        }
+
+        renderFeedbackList();
+        renderFeedbackDetails();
+        updateTopStats();
+      } catch (err) {
+        console.error("Load feedback error:", err);
+      }
+    }
+
+    function renderFeedbackList() {
+      const list = document.getElementById("feedbackList");
+      list.innerHTML = "";
+
+      if (!feedbackEntries.length) {
+        list.innerHTML = `<div class="empty-box">Abhi koi feedback nahi hai.</div>`;
+        return;
+      }
+
+      feedbackEntries.forEach((item) => {
+        const feedbackId = getId(item);
+        const div = document.createElement("div");
+        div.className = "feedback-item" + (feedbackId === selectedFeedbackId ? " active" : "");
+
+        const preview =
+          item.review && item.review.length > 80
+            ? item.review.slice(0, 80) + "..."
+            : item.review || "No written review";
+
+        div.innerHTML = `
+          <div class="item-title">
+            <span class="mini-avatar">★</span>
+            <span>Rating: ${item.rating || 0}/5</span>
+          </div>
+          <div class="item-preview">${escapeHtml(preview)}</div>
+          <div class="muted">
+            Conversation: #${item.conversationId ? String(item.conversationId._id || item.conversationId).slice(-6) : "N/A"}
+          </div>
+        `;
+
+        div.onclick = () => {
+          selectedFeedbackId = feedbackId;
+          renderFeedbackList();
+          renderFeedbackDetails();
+        };
+
+        list.appendChild(div);
+      });
+    }
+
+    function renderFeedbackDetails() {
+      const wrap = document.getElementById("feedbackDetails");
+
+      const item = feedbackEntries.find((x) => getId(x) === selectedFeedbackId);
+
+      if (!item) {
+        wrap.innerHTML = `<div class="empty-box">Koi feedback select karo.</div>`;
+        return;
+      }
+
+      const conv = item.conversationId || null;
+
+      wrap.innerHTML = `
+        <div class="meta-box">
+          <div><strong>Feedback ID:</strong> ${escapeHtml(getId(item))}</div>
+          <div class="star-row">${"⭐".repeat(item.rating || 0)}</div>
+          <div><strong>Review:</strong> ${escapeHtml(item.review || "No written review")}</div>
+          <div><strong>Conversation ID:</strong> ${conv ? escapeHtml(conv._id || conv) : "N/A"}</div>
+          <div><strong>Username:</strong> ${conv ? prettyValue(conv.username, "Anonymous") : "Anonymous"}</div>
+          <div><strong>Language:</strong> ${conv ? prettyLanguage(conv.language) : "Not provided"}</div>
+          <div><strong>Gender:</strong> ${conv ? prettyGender(conv.gender) : "Not provided"}</div>
+          <div><strong>Status:</strong> ${conv ? prettyValue(conv.status, "closed") : "N/A"}</div>
+        </div>
+      `;
+    }
+
+    async function initialLoad() {
+      await loadConversations();
+      await loadWriteEntries();
+      await loadFeedbackEntries();
+      updateTopStats();
+    }
+
+    initialLoad();
+
+    setInterval(async () => {
+      await loadConversations();
+      await loadWriteEntries();
+      await loadFeedbackEntries();
+    }, 3000);
+  </script>
+</body>
+</html>
