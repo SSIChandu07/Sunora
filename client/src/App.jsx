@@ -209,7 +209,7 @@ function App() {
 
   const lang = profile.language || "hinglish";
   const t = translations[lang];
-  const API_BASE = "http://localhost:5000";
+  const API_BASE = "https://sunora.onrender.com";
 
   const getAuthHeaders = () => {
     const token = localStorage.getItem("token");
