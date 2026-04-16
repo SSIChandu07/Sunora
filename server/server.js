@@ -13,9 +13,9 @@ require("dotenv").config({ path: __dirname + "/.env" });
 
 const app = express();
 cloudinary.config({
-  cloud_name: process.env.CLOUDINARY_CLOUD_NAME=dnknnmvcg,
-  api_key: process.env.CLOUDINARY_API_KEY=717661562866679,
-  api_secret: process.env.CLOUDINARY_API_SECRET=zU9xV5liZ7J7CIjZFtcvXH3kUmY
+  cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+  api_key: process.env.CLOUDINARY_API_KEY,
+  api_secret: process.env.CLOUDINARY_API_SECRET
 });
 
 app.set("trust proxy", 1);
