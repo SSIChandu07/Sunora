@@ -782,12 +782,13 @@ function App() {
     }
   };
 
-  const endChatNow = async () => {
-    await closeConversationOnServer();
-    setShowEndModal(true);
-    setShowFeedbackBox(false);
-  };
+ const endChatNow = async () => {
+  const confirmEnd = window.confirm("Are you sure you want to end this chat?");
+  if (!confirmEnd) return;
 
+  await closeConversationOnServer();
+  setShowEndModal(true);
+};
   const goToLogin = async () => {
     setShowEndModal(false);
     requestAuth("link_current_chat");
@@ -1489,14 +1490,7 @@ function App() {
           <div className="chat-screen whatsapp-chat-screen">
             <div className="chat-topbar">
               <div className="chat-topbar-left">
-                <button
-                  className="chat-icon-btn back-circle-btn"
-                  onClick={goHomeFromChat}
-                >
-                  ←
-                </button>
-
-                <div className="chat-contact-block">
+               <div className="chat-contact-block">
                   <div className="chat-contact-avatar">
                     {profile.username?.trim()
                       ? profile.username.trim().charAt(0).toUpperCase()
@@ -1569,12 +1563,13 @@ function App() {
                   )}
                 </div>
 
-                <button
-                  className="chat-icon-btn end-chat-float-btn"
-                  onClick={endChatNow}
-                >
-                  ✕
-                </button>
+               <button
+  className="chat-icon-btn end-chat-float-btn"
+  onClick={endChatNow}
+  title="End Chat"
+>
+  ❌
+</button>
               </div>
             </div>
 
