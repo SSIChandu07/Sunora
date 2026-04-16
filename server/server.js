@@ -13,6 +13,7 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 app.use("/admin", express.static("admin"));
+app.use("/uploads", express.static("uploads"));
 
 console.log("ENV CHECK =", process.env.MONGODB_URI);
 
