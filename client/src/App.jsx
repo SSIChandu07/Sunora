@@ -3,8 +3,6 @@ import "./App.css";
 import talkingImg from "./assets/talking.png";
 import SplashIntro from "./SplashIntro";
 
-const quickEmojis = ["💙", "🫂", "🥺", "✨", "😔", "🌈"];
-
 const translations = {
   english: {
     languageTitle: "Choose your language",
@@ -12,12 +10,14 @@ const translations = {
     continue: "Continue",
     skip: "Skip",
     identifyTitle: "How do you identify?",
-    identifySubtitle: "This is optional. It only helps us personalize your experience.",
+    identifySubtitle:
+      "This is optional. It only helps us personalize your experience.",
     male: "Male",
     female: "Female",
     preferNot: "Prefer not to say",
     usernameTitle: "What should we call you?",
-    usernameSubtitle: "This is optional. You can use your name or a nickname.",
+    usernameSubtitle:
+      "This is optional. You can use your name or a nickname.",
     usernamePlaceholder: "Enter your name or nickname",
     homeTitle: "Need to say something?",
     homeSub: "Real people are here to listen.",
@@ -36,13 +36,15 @@ const translations = {
     send: "Send",
     loginHint: "Log in later to save your conversations for next time.",
     writeTitle: "Just write it out",
-    writeSub: "You can simply write here. No reply is necessary.\nSometimes writing alone helps.",
+    writeSub:
+      "You can simply write here. No reply is necessary.\nSometimes writing alone helps.",
     writePlaceholder: "Write whatever you want...",
     consent:
       "If you want, your words can be shared anonymously so others can send supportive suggestions.",
     saved: "Okay. What you wrote has been saved.",
     readTitle: "You are not alone",
-    readSub: "Sometimes reading others' thoughts can make you feel lighter.",
+    readSub:
+      "Sometimes reading others' thoughts can make you feel lighter.",
     suggestionPlaceholder: "Want to say something supportive?",
     suggestionBtn: "Send suggestion",
     suggestionSaved: "Your suggestion has been sent for admin review.",
@@ -64,12 +66,14 @@ const translations = {
     continue: "आगे बढ़ें",
     skip: "स्किप",
     identifyTitle: "आप खुद को कैसे पहचानते हैं?",
-    identifySubtitle: "यह वैकल्पिक है। इससे हमें अनुभव को थोड़ा बेहतर बनाने में मदद मिलेगी।",
+    identifySubtitle:
+      "यह वैकल्पिक है। इससे हमें अनुभव को थोड़ा बेहतर बनाने में मदद मिलेगी।",
     male: "पुरुष",
     female: "महिला",
     preferNot: "बताना नहीं चाहते",
     usernameTitle: "हम आपको किस नाम से बुलाएँ?",
-    usernameSubtitle: "यह वैकल्पिक है। आप चाहें तो अपना नाम या निकनेम लिख सकते हैं।",
+    usernameSubtitle:
+      "यह वैकल्पिक है। आप चाहें तो अपना नाम या निकनेम लिख सकते हैं।",
     usernamePlaceholder: "अपना नाम या निकनेम लिखें",
     homeTitle: "कुछ कहना है?",
     homeSub: "यहाँ लोग सुनते हैं।",
@@ -79,22 +83,26 @@ const translations = {
     readBtn: "दूसरों की बातें पढ़नी हैं",
     safeLine: "सुरक्षित जगह। कोई जज नहीं करेगा। बस कोई सुनेगा।",
     captionTitle: "कभी-कभी बस किसी का सुन लेना ही काफी होता है।",
-    captionText: "आपकी बातें निजी रहेंगी, जब तक आप उन्हें साझा करने की अनुमति न दें।",
+    captionText:
+      "आपकी बातें निजी रहेंगी, जब तक आप उन्हें साझा करने की अनुमति न दें।",
     note: "यहाँ असली लोग हैं। कोई बॉट नहीं। आमतौर पर 5 मिनट के भीतर जवाब मिलता है।",
     back: "वापस",
     chatTitle: "बात करनी है?",
     chatSub: "कोई AI नहीं। यहाँ इंसान हैं।\nजो दिल में है लिख दीजिए।",
     chatPlaceholder: "जो मन में है लिखिए...",
     send: "भेजो",
-    loginHint: "बाद में लॉगिन करोगे तो अगली बार पुरानी बातें भी देख पाओगे।",
+    loginHint:
+      "बाद में लॉगिन करोगे तो अगली बार पुरानी बातें भी देख पाओगे।",
     writeTitle: "बस लिख दीजिए",
-    writeSub: "यहाँ बस लिख दीजिए। जवाब ज़रूरी नहीं है।\nकभी-कभी सिर्फ लिख देना ही काफी होता है।",
+    writeSub:
+      "यहाँ बस लिख दीजिए। जवाब ज़रूरी नहीं है।\nकभी-कभी सिर्फ लिख देना ही काफी होता है।",
     writePlaceholder: "जो लिखना है लिखिए...",
     consent:
       "अगर आप चाहें, तो आपकी बात को बिना नाम के साझा किया जा सकता है ताकि दूसरे लोग सहायक सुझाव दे सकें।",
     saved: "ठीक है। आपने जो लिखा, वह सेव हो गया।",
     readTitle: "आप अकेले नहीं हैं",
-    readSub: "कभी-कभी दूसरों की बातें पढ़कर भी मन हल्का लगता है।",
+    readSub:
+      "कभी-कभी दूसरों की बातें पढ़कर भी मन हल्का लगता है।",
     suggestionPlaceholder: "कुछ सहायक कहना चाहते हैं?",
     suggestionBtn: "सुझाव भेजें",
     suggestionSaved: "आपका सुझाव एडमिन रिव्यू के लिए भेज दिया गया है।",
@@ -116,12 +124,14 @@ const translations = {
     continue: "Continue",
     skip: "Skip",
     identifyTitle: "Tum khud ko kaise identify karte ho?",
-    identifySubtitle: "Ye optional hai. Bas experience ko thoda personalize karne ke liye hai.",
+    identifySubtitle:
+      "Ye optional hai. Bas experience ko thoda personalize karne ke liye hai.",
     male: "Male",
     female: "Female",
     preferNot: "Prefer not to say",
     usernameTitle: "Hum tumhe kis naam se bulayen?",
-    usernameSubtitle: "Ye optional hai. Name ya nickname kuch bhi likh sakte ho.",
+    usernameSubtitle:
+      "Ye optional hai. Name ya nickname kuch bhi likh sakte ho.",
     usernamePlaceholder: "Apna name ya nickname likho",
     homeTitle: "Kuch bolna hai?",
     homeSub: "Yahan log sunte hain.",
@@ -138,15 +148,18 @@ const translations = {
     chatSub: "No AI. Real human support.\nJo dil me hai likh do.",
     chatPlaceholder: "Jo dil me hai likh do...",
     send: "Bol do",
-    loginHint: "Login karoge toh future me apni purani baatein bhi dekh paoge.",
+    loginHint:
+      "Login karoge toh future me apni purani baatein bhi dekh paoge.",
     writeTitle: "Bas likh do",
-    writeSub: "Yahan bas likh do. Koi reply zaroori nahi.\nKabhi kabhi sirf likh dena bhi enough hota hai.",
+    writeSub:
+      "Yahan bas likh do. Koi reply zaroori nahi.\nKabhi kabhi sirf likh dena bhi enough hota hai.",
     writePlaceholder: "Jo likhna hai likh do...",
     consent:
       "Agar tum chaho, tumhari baat anonymous form me dusron ke supportive suggestions ke liye share ki ja sakti hai.",
     saved: "Theek hai. Jo tumne likha, woh save ho gaya.",
     readTitle: "Tum akela nahi ho",
-    readSub: "Kabhi kabhi dusron ki baatein padhkar bhi halka feel hota hai.",
+    readSub:
+      "Kabhi kabhi dusron ki baatein padhkar bhi halka feel hota hai.",
     suggestionPlaceholder: "Kuch supportive kehna chahte ho?",
     suggestionBtn: "Suggestion bhejo",
     suggestionSaved: "Suggestion admin review ke liye bhej diya gaya.",
@@ -164,6 +177,13 @@ const translations = {
   }
 };
 
+const emojiCategories = {
+  "😀": ["😀", "😄", "😊", "🙂", "😌", "🥺", "😔", "😢", "😭", "😤", "😴", "😵‍💫"],
+  "❤️": ["❤️", "🩷", "💜", "💙", "🤍", "💖", "💕", "💘", "💓", "💞"],
+ "🫂": ["🫂", "🌈", "✨", "🙏", "🤝", "💪", "🌸", "🍀", "☀️", "🌙", "🕊️"],
+  "👍": ["👍", "👎", "👏", "🙌", "🤞", "👀", "😶‍🌫️", "😮", "😣", "😞", "😡"]
+};
+
 function App() {
   const [screen, setScreen] = useState("splash");
   const [profile, setProfile] = useState({
@@ -174,8 +194,7 @@ function App() {
 
   const [text, setText] = useState("");
   const [writeText, setWriteText] = useState("");
-  const [messages, setMessages] = useState([
-  ]);
+  const [messages, setMessages] = useState([]);
 
   const [readEntries, setReadEntries] = useState([]);
   const [conversationId, setConversationId] = useState(null);
@@ -189,6 +208,9 @@ function App() {
   const [rating, setRating] = useState("5");
   const [review, setReview] = useState("");
   const [feedbackSubmitting, setFeedbackSubmitting] = useState(false);
+
+  const [showEmojiPanel, setShowEmojiPanel] = useState(false);
+  const [emojiTarget, setEmojiTarget] = useState("chat");
 
   const [authMode, setAuthMode] = useState("login");
   const [authForm, setAuthForm] = useState({
@@ -204,6 +226,18 @@ function App() {
   const [myChats, setMyChats] = useState([]);
   const [myWrites, setMyWrites] = useState([]);
   const [showProfileMenu, setShowProfileMenu] = useState(false);
+  const [showChatEmojiPicker, setShowChatEmojiPicker] = useState(false);
+
+  const [theme, setTheme] = useState(localStorage.getItem("sunoraTheme") || "light");
+  const [isSupportTyping, setIsSupportTyping] = useState(false);
+  const [showThemeMenu, setShowThemeMenu] = useState(false);
+
+  const [isRecording, setIsRecording] = useState(false);
+  const [recordingSeconds, setRecordingSeconds] = useState(0);
+  const [audioPreviewUrl, setAudioPreviewUrl] = useState("");
+  const mediaRecorderRef = useRef(null);
+  const audioChunksRef = useRef([]);
+  const recordingTimerRef = useRef(null);
 
   const chatBoxRef = useRef(null);
 
@@ -241,6 +275,145 @@ function App() {
     return "Main yahan hoon. Aaram se bolo.";
   };
 
+  const toggleTheme = (nextTheme) => {
+    setTheme(nextTheme);
+    localStorage.setItem("sunoraTheme", nextTheme);
+    setShowThemeMenu(false);
+  };
+
+  const formatRecordingTime = (seconds) => {
+    const mins = Math.floor(seconds / 60)
+      .toString()
+      .padStart(2, "0");
+    const secs = (seconds % 60).toString().padStart(2, "0");
+    return `${mins}:${secs}`;
+  };
+
+  const startVoiceRecording = async () => {
+    try {
+      if (!navigator.mediaDevices || !window.MediaRecorder) {
+        alert("Voice note is not supported in this browser.");
+        return;
+      }
+
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      const mediaRecorder = new MediaRecorder(stream);
+
+      mediaRecorderRef.current = mediaRecorder;
+      audioChunksRef.current = [];
+      setAudioPreviewUrl("");
+      setRecordingSeconds(0);
+
+      mediaRecorder.ondataavailable = (event) => {
+        if (event.data.size > 0) {
+          audioChunksRef.current.push(event.data);
+        }
+      };
+
+      mediaRecorder.onstop = () => {
+        const audioBlob = new Blob(audioChunksRef.current, {
+          type: "audio/webm"
+        });
+
+        const previewUrl = URL.createObjectURL(audioBlob);
+        setAudioPreviewUrl(previewUrl);
+
+        stream.getTracks().forEach((track) => track.stop());
+      };
+
+      mediaRecorder.start();
+      setIsRecording(true);
+
+      recordingTimerRef.current = setInterval(() => {
+        setRecordingSeconds((prev) => prev + 1);
+      }, 1000);
+    } catch (err) {
+      console.error("Voice recording error:", err);
+      alert("Mic permission allow karo bhai.");
+    }
+  };
+
+  const stopVoiceRecording = () => {
+    if (mediaRecorderRef.current && mediaRecorderRef.current.state !== "inactive") {
+      mediaRecorderRef.current.stop();
+    }
+
+    setIsRecording(false);
+
+    if (recordingTimerRef.current) {
+      clearInterval(recordingTimerRef.current);
+      recordingTimerRef.current = null;
+    }
+  };
+
+  const cancelVoiceRecording = () => {
+    if (isRecording) {
+      stopVoiceRecording();
+    }
+
+    if (audioPreviewUrl) {
+      URL.revokeObjectURL(audioPreviewUrl);
+    }
+
+    setAudioPreviewUrl("");
+    setRecordingSeconds(0);
+    audioChunksRef.current = [];
+  };
+
+  const sendVoiceNote = async () => {
+    if (!audioChunksRef.current.length) return;
+
+    const audioBlob = new Blob(audioChunksRef.current, {
+      type: "audio/webm"
+    });
+
+    const tempUrl = URL.createObjectURL(audioBlob);
+
+    setMessages((prev) => [
+      ...prev,
+      {
+        sender: "user",
+        audioUrl: tempUrl
+      }
+    ]);
+
+    setIsSupportTyping(true);
+
+    try {
+      const formData = new FormData();
+      formData.append("audio", audioBlob, "voice-note.webm");
+      formData.append("conversationId", conversationId || "");
+      formData.append("username", profile.username || "");
+      formData.append("language", profile.language || "");
+      formData.append("gender", profile.gender || "");
+
+      const res = await fetch(`${API_BASE}/api/voice`, {
+        method: "POST",
+        headers: {
+          ...getAuthHeaders()
+        },
+        body: formData
+      });
+
+      const data = await res.json();
+
+      if (data.success && data.conversationId) {
+        setConversationId(data.conversationId);
+        localStorage.setItem("conversationId", data.conversationId);
+      }
+    } catch (err) {
+      console.error("Voice note save error:", err);
+      alert("Voice note bhejne me issue aaya.");
+    } finally {
+      setAudioPreviewUrl("");
+      setRecordingSeconds(0);
+      audioChunksRef.current = [];
+      setTimeout(() => {
+        setIsSupportTyping(false);
+      }, 1500);
+    }
+  };
+
   const saveAuth = (token, user) => {
     localStorage.setItem("token", token);
     localStorage.setItem("user", JSON.stringify(user));
@@ -262,6 +435,10 @@ function App() {
     localStorage.removeItem("user");
     localStorage.removeItem("conversationId");
 
+    if (audioPreviewUrl) {
+      URL.revokeObjectURL(audioPreviewUrl);
+    }
+
     setCurrentUser(null);
     setConversationId(null);
     setMessages([
@@ -276,6 +453,20 @@ function App() {
     setShowProfileMenu(false);
     setShowEndModal(false);
     setShowFeedbackBox(false);
+    setShowChatEmojiPicker(false);
+    setShowThemeMenu(false);
+    setShowEmojiPanel(false);
+    setIsSupportTyping(false);
+    setIsRecording(false);
+    setRecordingSeconds(0);
+    setAudioPreviewUrl("");
+    audioChunksRef.current = [];
+
+    if (recordingTimerRef.current) {
+      clearInterval(recordingTimerRef.current);
+      recordingTimerRef.current = null;
+    }
+
     setRating("5");
     setReview("");
     setAuthForm({
@@ -475,20 +666,38 @@ function App() {
   };
 
   const resetChatState = () => {
-  setText("");
-  setConversationId(null);
-  setMessages([
-    {
-      sender: "support",
-      text: getInitialSupportMessage()
+    if (audioPreviewUrl) {
+      URL.revokeObjectURL(audioPreviewUrl);
     }
-  ]);
-  setShowEndModal(false);
-  setShowFeedbackBox(false);
-  setRating("5");
-  setReview("");
-  localStorage.removeItem("conversationId");
-};
+
+    setText("");
+    setConversationId(null);
+    setMessages([
+      {
+        sender: "support",
+        text: getInitialSupportMessage()
+      }
+    ]);
+    setShowEndModal(false);
+    setShowFeedbackBox(false);
+    setShowChatEmojiPicker(false);
+    setShowThemeMenu(false);
+    setShowEmojiPanel(false);
+    setIsSupportTyping(false);
+    setIsRecording(false);
+    setRecordingSeconds(0);
+    setAudioPreviewUrl("");
+    audioChunksRef.current = [];
+
+    if (recordingTimerRef.current) {
+      clearInterval(recordingTimerRef.current);
+      recordingTimerRef.current = null;
+    }
+
+    setRating("5");
+    setReview("");
+    localStorage.removeItem("conversationId");
+  };
 
   const closeConversationOnServer = async () => {
     try {
@@ -510,44 +719,52 @@ function App() {
   };
 
   const startFreshChat = async () => {
-  try {
-    localStorage.removeItem("conversationId");
-    setConversationId(null);
-    setText("");
-    setShowEndModal(false);
-    setShowFeedbackBox(false);
+    try {
+      localStorage.removeItem("conversationId");
+      setConversationId(null);
+      setText("");
+      setShowEndModal(false);
+      setShowFeedbackBox(false);
+      setShowChatEmojiPicker(false);
+      setShowThemeMenu(false);
+      setShowEmojiPanel(false);
+      setIsSupportTyping(false);
+      setIsRecording(false);
+      setRecordingSeconds(0);
+      setAudioPreviewUrl("");
+      audioChunksRef.current = [];
 
-    const res = await fetch(`${API_BASE}/api/chat/start`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        ...getAuthHeaders()
-      },
-      body: JSON.stringify({
-        username: profile.username,
-        language: profile.language,
-        gender: profile.gender
-      })
-    });
+      const res = await fetch(`${API_BASE}/api/chat/start`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          ...getAuthHeaders()
+        },
+        body: JSON.stringify({
+          username: profile.username,
+          language: profile.language,
+          gender: profile.gender
+        })
+      });
 
-    const data = await res.json();
+      const data = await res.json();
 
-    if (!res.ok || !data.success || !data.conversation) {
+      if (!res.ok || !data.success || !data.conversation) {
+        alert("Chat start karne me issue aaya.");
+        return;
+      }
+
+      const conv = data.conversation;
+
+      setConversationId(conv._id);
+      localStorage.setItem("conversationId", conv._id);
+      setMessages(conv.messages || []);
+      setScreen("chat");
+    } catch (err) {
+      console.error("Start chat error:", err);
       alert("Chat start karne me issue aaya.");
-      return;
     }
-
-    const conv = data.conversation;
-
-    setConversationId(conv._id);
-    localStorage.setItem("conversationId", conv._id);
-    setMessages(conv.messages || []);
-    setScreen("chat");
-  } catch (err) {
-    console.error("Start chat error:", err);
-    alert("Chat start karne me issue aaya.");
-  }
-};
+  };
 
   const openSavedConversation = async (id) => {
     try {
@@ -606,12 +823,20 @@ function App() {
     }
   };
 
+  const addEmojiToWrite = (emoji) => {
+    setWriteText((prev) => prev + emoji);
+  };
+
   const addEmojiToChat = (emoji) => {
     setText((prev) => prev + emoji);
   };
 
-  const addEmojiToWrite = (emoji) => {
-    setWriteText((prev) => prev + emoji);
+  const handleEmojiSelect = (emoji) => {
+    if (emojiTarget === "write") {
+      setWriteText((prev) => prev + emoji);
+    } else {
+      setText((prev) => prev + emoji);
+    }
   };
 
   const sendMessage = async () => {
@@ -625,6 +850,9 @@ function App() {
 
     setMessages((prev) => [...prev, userMessage]);
     setText("");
+    setShowChatEmojiPicker(false);
+    setShowEmojiPanel(false);
+    setIsSupportTyping(true);
 
     try {
       const res = await fetch(`${API_BASE}/api/message`, {
@@ -650,6 +878,10 @@ function App() {
       }
     } catch (err) {
       console.error("Message save error:", err);
+    } finally {
+      setTimeout(() => {
+        setIsSupportTyping(false);
+      }, 1500);
     }
   };
 
@@ -676,6 +908,7 @@ function App() {
       setWriteText("");
       setConsentToShare(false);
       setWriteSaved(true);
+      setShowEmojiPanel(false);
 
       setTimeout(() => {
         setWriteSaved(false);
@@ -754,7 +987,7 @@ function App() {
     if (screen === "chat") {
       scrollToBottom();
     }
-  }, [messages, screen]);
+  }, [messages, screen, isSupportTyping]);
 
   useEffect(() => {
     loadCurrentUser();
@@ -769,7 +1002,21 @@ function App() {
 
   useEffect(() => {
     setShowProfileMenu(false);
+    setShowChatEmojiPicker(false);
+    setShowThemeMenu(false);
+    setShowEmojiPanel(false);
   }, [screen]);
+
+  useEffect(() => {
+    const handleClickOutside = (e) => {
+      if (!e.target.closest(".emoji-panel") && !e.target.closest(".emoji-toggle-btn")) {
+        setShowEmojiPanel(false);
+      }
+    };
+
+    document.addEventListener("click", handleClickOutside);
+    return () => document.removeEventListener("click", handleClickOutside);
+  }, []);
 
   useEffect(() => {
     if (!conversationId || screen !== "chat") return;
@@ -780,7 +1027,14 @@ function App() {
         const data = await res.json();
 
         if (data.success && data.conversation) {
-          setMessages(data.conversation.messages);
+          setMessages(data.conversation.messages || []);
+
+          const lastMsg =
+            data.conversation.messages?.[data.conversation.messages.length - 1];
+
+          if (lastMsg?.sender === "support") {
+            setIsSupportTyping(false);
+          }
         }
       } catch (err) {
         console.error("Conversation fetch error:", err);
@@ -792,6 +1046,17 @@ function App() {
 
     return () => clearInterval(interval);
   }, [conversationId, screen]);
+
+  useEffect(() => {
+    return () => {
+      if (recordingTimerRef.current) {
+        clearInterval(recordingTimerRef.current);
+      }
+      if (audioPreviewUrl) {
+        URL.revokeObjectURL(audioPreviewUrl);
+      }
+    };
+  }, [audioPreviewUrl]);
 
   const renderOnboarding = () => {
     if (screen === "splash") {
@@ -808,13 +1073,25 @@ function App() {
               <p className="soft">{t.languageSubtitle}</p>
 
               <div className="action-buttons">
-                <button onClick={() => setProfile((prev) => ({ ...prev, language: "english" }))}>
+                <button
+                  onClick={() =>
+                    setProfile((prev) => ({ ...prev, language: "english" }))
+                  }
+                >
                   English
                 </button>
-                <button onClick={() => setProfile((prev) => ({ ...prev, language: "hindi" }))}>
+                <button
+                  onClick={() =>
+                    setProfile((prev) => ({ ...prev, language: "hindi" }))
+                  }
+                >
                   हिन्दी
                 </button>
-                <button onClick={() => setProfile((prev) => ({ ...prev, language: "hinglish" }))}>
+                <button
+                  onClick={() =>
+                    setProfile((prev) => ({ ...prev, language: "hinglish" }))
+                  }
+                >
                   Hinglish
                 </button>
               </div>
@@ -839,7 +1116,10 @@ function App() {
         <div className="onboarding-screen">
           <div className="content">
             <div className="onboarding-topbar">
-              <button className="mini-skip-btn" onClick={() => setScreen("username")}>
+              <button
+                className="mini-skip-btn"
+                onClick={() => setScreen("username")}
+              >
                 {t.skip}
               </button>
             </div>
@@ -870,7 +1150,10 @@ function App() {
 
                 <button
                   onClick={() => {
-                    setProfile((prev) => ({ ...prev, gender: "prefer_not_to_say" }));
+                    setProfile((prev) => ({
+                      ...prev,
+                      gender: "prefer_not_to_say"
+                    }));
                     setScreen("username");
                   }}
                 >
@@ -913,7 +1196,10 @@ function App() {
                 }}
               />
 
-              <button className="send-btn single-continue-btn" onClick={() => setScreen("home")}>
+              <button
+                className="send-btn single-continue-btn"
+                onClick={() => setScreen("home")}
+              >
                 {t.continue}
               </button>
             </div>
@@ -930,42 +1216,58 @@ function App() {
   }
 
   return (
-    <div className="app">
-      <div className="content">
-        <div className="top-right-profile">
-          <button
-            className="profile-icon-btn"
-            onClick={() => setShowProfileMenu((prev) => !prev)}
-            type="button"
-          >
-            {currentUser?.name ? currentUser.name.charAt(0).toUpperCase() : "👤"}
-          </button>
+    <div
+      className={`app ${
+        screen === "chat" || screen === "write" || screen === "read"
+          ? "chat-mode"
+          : ""
+      } ${theme === "dark" ? "theme-dark" : "theme-light"}`}
+    >
+      <div
+        className={`content ${
+          screen === "chat" || screen === "write" || screen === "read"
+            ? "chat-layout"
+            : ""
+        }`}
+      >
+        {screen !== "chat" && screen !== "write" && screen !== "read" && (
+          <div className="top-right-profile">
+            <button
+              className="profile-icon-btn"
+              onClick={() => setShowProfileMenu((prev) => !prev)}
+              type="button"
+            >
+              {currentUser?.name ? currentUser.name.charAt(0).toUpperCase() : "👤"}
+            </button>
 
-          {showProfileMenu && (
-            <div className="profile-dropdown">
-              {currentUser ? (
-                <>
-                  <div className="profile-user-name">{currentUser.name}</div>
-                  <div className="profile-user-email">{currentUser.email}</div>
-                  <button className="profile-menu-btn" onClick={logout}>
-                    Logout
+            {showProfileMenu && (
+              <div className="profile-dropdown">
+                {currentUser ? (
+                  <>
+                    <div className="profile-user-name">{currentUser.name}</div>
+                    <div className="profile-user-email">{currentUser.email}</div>
+                    <button className="profile-menu-btn" onClick={logout}>
+                      Logout
+                    </button>
+                  </>
+                ) : (
+                  <button
+                    className="profile-menu-btn"
+                    onClick={() => {
+                      requestAuth("home");
+                    }}
+                  >
+                    Login / Signup
                   </button>
-                </>
-              ) : (
-                <button
-                  className="profile-menu-btn"
-                  onClick={() => {
-                    requestAuth("home");
-                  }}
-                >
-                  Login / Signup
-                </button>
-              )}
-            </div>
-          )}
-        </div>
+                )}
+              </div>
+            )}
+          </div>
+        )}
 
-        <div className="brand">☾ Sunora</div>
+        {screen !== "chat" && screen !== "write" && screen !== "read" && (
+          <div className="brand">☾ Sunora</div>
+        )}
 
         {screen === "home" && (
           <>
@@ -1071,7 +1373,11 @@ function App() {
                 </div>
               )}
 
-              <button className="send-btn" onClick={submitAuth} disabled={authLoading}>
+              <button
+                className="send-btn"
+                onClick={submitAuth}
+                disabled={authLoading}
+              >
                 {authLoading
                   ? "Please wait..."
                   : authMode === "login"
@@ -1114,7 +1420,7 @@ function App() {
                       </div>
                       <div className="entry-text">
                         <strong>Last message:</strong>{" "}
-                        {lastMsg ? lastMsg.text : "No messages yet"}
+                        {lastMsg?.text || (lastMsg?.audioUrl ? "Voice note" : "No messages yet")}
                       </div>
                       <button
                         className="mini-send-btn"
@@ -1126,7 +1432,9 @@ function App() {
                   );
                 })
               ) : (
-                <div className="empty-read">Abhi tumhari koi saved chat nahi hai.</div>
+                <div className="empty-read">
+                  Abhi tumhari koi saved chat nahi hai.
+                </div>
               )}
             </div>
           </div>
@@ -1157,84 +1465,255 @@ function App() {
                   </div>
                 ))
               ) : (
-                <div className="empty-read">Abhi tumhari koi writing saved nahi hai.</div>
+                <div className="empty-read">
+                  Abhi tumhari koi writing saved nahi hai.
+                </div>
               )}
             </div>
           </div>
         )}
 
         {screen === "chat" && (
-          <div className="chat-screen">
-            <button className="back-btn" onClick={goHomeFromChat}>
-              ← {t.back}
-            </button>
-
-            <div className="chat-header">
-              <h1 className="chat-title">{t.chatTitle}</h1>
-              <p className="chat-sub">
-                {t.chatSub.split("\n").map((line, i) => (
-                  <span key={i}>
-                    {line}
-                    <br />
-                  </span>
-                ))}
-              </p>
-            </div>
-
-            <div className="chat-page-wrap">
-              <div className="chat-box" ref={chatBoxRef}>
-                {messages.map((msg, index) => (
-                  <div
-                    key={index}
-                    className={`chat-row ${msg.sender === "user" ? "user-row" : "support-row"}`}
-                  >
-                    <div
-                      className={`chat-bubble ${
-                        msg.sender === "user" ? "user-bubble" : "support-bubble"
-                      }`}
-                    >
-                      {msg.text}
-                    </div>
-                  </div>
-                ))}
-              </div>
-
-              <div className="emoji-row">
-                {quickEmojis.map((emoji) => (
-                  <button
-                    key={emoji}
-                    className="emoji-btn"
-                    onClick={() => addEmojiToChat(emoji)}
-                    type="button"
-                  >
-                    {emoji}
-                  </button>
-                ))}
-              </div>
-
-              <div className="chat-input-area">
-                <textarea
-                  className="chat-textarea"
-                  placeholder={t.chatPlaceholder}
-                  value={text}
-                  onChange={(e) => setText(e.target.value)}
-                  onKeyDown={handleChatKeyDown}
-                />
-
-                <button className="send-btn" onClick={sendMessage}>
-                  {t.send}
+          <div className="chat-screen whatsapp-chat-screen">
+            <div className="chat-topbar">
+              <div className="chat-topbar-left">
+                <button
+                  className="chat-icon-btn back-circle-btn"
+                  onClick={goHomeFromChat}
+                >
+                  ←
                 </button>
 
-                <button className="mini-send-btn" onClick={openMyChats}>
+                <div className="chat-contact-block">
+                  <div className="chat-contact-avatar">
+                    {profile.username?.trim()
+                      ? profile.username.trim().charAt(0).toUpperCase()
+                      : "S"}
+                  </div>
+
+                  <div className="chat-contact-meta">
+                    <div className="chat-contact-name">Sunora Support</div>
+                    <div className="chat-contact-status">
+                      {t.chatSub.split("\n")[0]}
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div className="chat-topbar-right">
+                <div className="theme-menu-wrap">
+                  <button
+                    className="chat-icon-btn"
+                    type="button"
+                    onClick={() => setShowThemeMenu((prev) => !prev)}
+                  >
+                    🎨
+                  </button>
+
+                  {showThemeMenu && (
+                    <div className="theme-menu-dropdown">
+                      <button onClick={() => toggleTheme("light")}>Light</button>
+                      <button onClick={() => toggleTheme("dark")}>Dark</button>
+                    </div>
+                  )}
+                </div>
+
+                <button className="chat-chip-btn" onClick={openMyChats}>
                   My Chats
                 </button>
 
-                <button className="end-btn" onClick={endChatNow}>
-                  {t.endChat}
+                <div className="chat-profile-wrap">
+                  <button
+                    className="chat-icon-btn profile-mini-btn"
+                    onClick={() => setShowProfileMenu((prev) => !prev)}
+                    type="button"
+                  >
+                    {currentUser?.name
+                      ? currentUser.name.charAt(0).toUpperCase()
+                      : "👤"}
+                  </button>
+
+                  {showProfileMenu && (
+                    <div className="profile-dropdown profile-dropdown-chat">
+                      {currentUser ? (
+                        <>
+                          <div className="profile-user-name">{currentUser.name}</div>
+                          <div className="profile-user-email">{currentUser.email}</div>
+                          <button className="profile-menu-btn" onClick={logout}>
+                            Logout
+                          </button>
+                        </>
+                      ) : (
+                        <button
+                          className="profile-menu-btn"
+                          onClick={() => {
+                            requestAuth("home");
+                          }}
+                        >
+                          Login / Signup
+                        </button>
+                      )}
+                    </div>
+                  )}
+                </div>
+
+                <button
+                  className="chat-icon-btn end-chat-float-btn"
+                  onClick={endChatNow}
+                >
+                  ✕
+                </button>
+              </div>
+            </div>
+
+            <div className="chat-thread" ref={chatBoxRef}>
+              {messages.map((msg, index) => (
+                <div
+                  key={index}
+                  className={`chat-row ${
+                    msg.sender === "user" ? "user-row" : "support-row"
+                  }`}
+                >
+                  <div
+                    className={`chat-bubble ${
+                      msg.sender === "user" ? "user-bubble" : "support-bubble"
+                    }`}
+                  >
+                    {msg.audioUrl ? (
+                      <audio controls src={msg.audioUrl} className="voice-note-player" />
+                    ) : (
+                      msg.text
+                    )}
+                  </div>
+                </div>
+              ))}
+
+              {isSupportTyping && (
+                <div className="chat-row support-row">
+                  <div className="chat-bubble support-bubble typing-bubble">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                  </div>
+                </div>
+              )}
+            </div>
+
+            <div className="chat-bottom-wrap">
+              {showEmojiPanel && emojiTarget === "chat" && (
+                <div className="emoji-panel">
+                  {Object.keys(emojiCategories).map((category) => (
+                    <div key={category} className="emoji-section">
+                      <div className="emoji-title">{category}</div>
+                      <div className="emoji-grid">
+                        {emojiCategories[category].map((emoji, index) => (
+                          <button
+                            key={`${category}-${index}`}
+                            type="button"
+                            className="emoji-item"
+                            onClick={() => handleEmojiSelect(emoji)}
+                          >
+                            {emoji}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+
+              {audioPreviewUrl && (
+                <div className="voice-preview-bar">
+                  <div className="voice-preview-left">
+                    <span className="voice-dot"></span>
+                    <span>Voice note ready</span>
+                  </div>
+                  <audio controls src={audioPreviewUrl} className="voice-note-player preview-player" />
+                  <div className="voice-preview-actions">
+                    <button
+                      type="button"
+                      className="voice-action-btn cancel"
+                      onClick={cancelVoiceRecording}
+                    >
+                      ✕
+                    </button>
+                    <button
+                      type="button"
+                      className="voice-action-btn send"
+                      onClick={sendVoiceNote}
+                    >
+                      ➤
+                    </button>
+                  </div>
+                </div>
+              )}
+
+              <div className="chat-composer">
+                <button
+                  className="chat-composer-icon emoji-toggle-btn"
+                  type="button"
+                  onClick={() => {
+                    setEmojiTarget("chat");
+                    setShowEmojiPanel((prev) => !prev);
+                  }}
+                  title="Emoji"
+                >
+                  😊
                 </button>
 
-                <p className="login-hint">{t.loginHint}</p>
+                {!isRecording && !audioPreviewUrl && (
+                  <textarea
+                    className="chat-textarea whatsapp-textarea"
+                    placeholder={t.chatPlaceholder}
+                    value={text}
+                    onChange={(e) => setText(e.target.value)}
+                    onKeyDown={handleChatKeyDown}
+                    rows={1}
+                  />
+                )}
+
+                {isRecording && (
+                  <div className="recording-status">
+                    <span className="recording-pulse"></span>
+                    <span>Recording {formatRecordingTime(recordingSeconds)}</span>
+                  </div>
+                )}
+
+                {!isRecording && !audioPreviewUrl && (
+                  <button
+                    className={`chat-composer-icon mic-btn`}
+                    type="button"
+                    onClick={startVoiceRecording}
+                    title="Voice note"
+                  >
+                    🎙️
+                  </button>
+                )}
+
+                {isRecording && (
+                  <button
+                    className="chat-composer-icon mic-btn recording-btn"
+                    type="button"
+                    onClick={stopVoiceRecording}
+                    title="Stop recording"
+                  >
+                    ⏹
+                  </button>
+                )}
+
+                {!isRecording && !audioPreviewUrl && (
+                  <button
+                    className={`chat-send-fab ${text.trim() ? "active" : ""}`}
+                    onClick={sendMessage}
+                    type="button"
+                    disabled={!text.trim()}
+                  >
+                    ➤
+                  </button>
+                )}
               </div>
+
+              <p className="login-hint chat-login-hint">{t.loginHint}</p>
             </div>
 
             {showEndModal && (
@@ -1302,44 +1781,61 @@ function App() {
         )}
 
         {screen === "write" && (
-          <div className="write-screen">
-            <button className="back-btn" onClick={() => setScreen("home")}>
-              ← {t.back}
-            </button>
+          <div className="chat-screen whatsapp-chat-screen">
+            <div className="chat-topbar">
+              <div className="chat-topbar-left">
+                <button
+                  className="chat-icon-btn back-circle-btn"
+                  onClick={() => setScreen("home")}
+                >
+                  ←
+                </button>
 
-            <h1>{t.writeTitle}</h1>
-            <p className="soft">
-              {t.writeSub.split("\n").map((line, i) => (
-                <span key={i}>
-                  {line}
-                  <br />
-                </span>
-              ))}
-            </p>
-
-            <div className="write-wrap">
-              <div className="emoji-row">
-                {quickEmojis.map((emoji) => (
-                  <button
-                    key={emoji}
-                    className="emoji-btn"
-                    onClick={() => addEmojiToWrite(emoji)}
-                    type="button"
-                  >
-                    {emoji}
-                  </button>
-                ))}
+                <div className="chat-contact-block">
+                  <div className="chat-contact-avatar">✍️</div>
+                  <div className="chat-contact-meta">
+                    <div className="chat-contact-name">{t.writeTitle}</div>
+                    <div className="chat-contact-status">
+                      {t.writeSub.split("\n")[0]}
+                    </div>
+                  </div>
+                </div>
               </div>
 
+              <div className="chat-topbar-right">
+                <div className="theme-menu-wrap">
+                  <button
+                    className="chat-icon-btn"
+                    type="button"
+                    onClick={() => setShowThemeMenu((prev) => !prev)}
+                  >
+                    🎨
+                  </button>
+
+                  {showThemeMenu && (
+                    <div className="theme-menu-dropdown">
+                      <button onClick={() => toggleTheme("light")}>Light</button>
+                      <button onClick={() => toggleTheme("dark")}>Dark</button>
+                    </div>
+                  )}
+                </div>
+
+                <button className="chat-chip-btn" onClick={openMyWrites}>
+                  My Writings
+                </button>
+              </div>
+            </div>
+
+            <div className="write-full-area">
               <textarea
-                className="write-textarea"
+                className="write-full-textarea"
                 placeholder={t.writePlaceholder}
                 value={writeText}
                 onChange={(e) => setWriteText(e.target.value)}
                 onKeyDown={handleWriteKeyDown}
               />
 
-              <label className="consent-box">
+              <label className="consent-box full-consent-box">
                 <input
                   type="checkbox"
                   checked={consentToShare}
@@ -1348,33 +1844,103 @@ function App() {
                 <span>{t.consent}</span>
               </label>
 
-              <button className="send-btn" onClick={saveWrite}>
-                {t.writeBtn}
-              </button>
-
-              <button className="mini-send-btn" onClick={openMyWrites}>
-                My Writings
-              </button>
-
               {writeSaved && <div className="write-saved">{t.saved}</div>}
+            </div>
+
+            <div className="chat-bottom-wrap">
+              {showEmojiPanel && emojiTarget === "write" && (
+                <div className="emoji-panel">
+                  {Object.keys(emojiCategories).map((category) => (
+                    <div key={category} className="emoji-section">
+                      <div className="emoji-title">{category}</div>
+                      <div className="emoji-grid">
+                        {emojiCategories[category].map((emoji, index) => (
+                          <button
+                            key={`${category}-${index}`}
+                            type="button"
+                            className="emoji-item"
+                            onClick={() => handleEmojiSelect(emoji)}
+                          >
+                            {emoji}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+
+              <div className="chat-composer write-composer">
+                <button
+                  className="chat-composer-icon emoji-toggle-btn"
+                  type="button"
+                  onClick={() => {
+                    setEmojiTarget("write");
+                    setShowEmojiPanel((prev) => !prev);
+                  }}
+                >
+                  😊
+                </button>
+
+                <div className="write-footer-text">Write freely. No judgement.</div>
+
+                <button
+                  className="chat-send-fab active"
+                  onClick={saveWrite}
+                  type="button"
+                >
+                  ✔
+                </button>
+              </div>
             </div>
           </div>
         )}
 
         {screen === "read" && (
-          <div className="read-screen">
-            <button className="back-btn" onClick={() => setScreen("home")}>
-              ← {t.back}
-            </button>
+          <div className="chat-screen whatsapp-chat-screen">
+            <div className="chat-topbar">
+              <div className="chat-topbar-left">
+                <button
+                  className="chat-icon-btn back-circle-btn"
+                  onClick={() => setScreen("home")}
+                >
+                  ←
+                </button>
 
-            <h1>{t.readTitle}</h1>
-            <p className="soft">{t.readSub}</p>
+                <div className="chat-contact-block">
+                  <div className="chat-contact-avatar">🫂</div>
+                  <div className="chat-contact-meta">
+                    <div className="chat-contact-name">{t.readTitle}</div>
+                    <div className="chat-contact-status">{t.readSub}</div>
+                  </div>
+                </div>
+              </div>
 
-            <div className="read-wrap">
+              <div className="chat-topbar-right">
+                <div className="theme-menu-wrap">
+                  <button
+                    className="chat-icon-btn"
+                    type="button"
+                    onClick={() => setShowThemeMenu((prev) => !prev)}
+                  >
+                    🎨
+                  </button>
+
+                  {showThemeMenu && (
+                    <div className="theme-menu-dropdown">
+                      <button onClick={() => toggleTheme("light")}>Light</button>
+                      <button onClick={() => toggleTheme("dark")}>Dark</button>
+                    </div>
+                  )}
+                </div>
+              </div>
+            </div>
+
+            <div className="read-feed-area">
               {readEntries.length > 0 ? (
                 readEntries.map((entry) => (
-                  <div key={entry.id} className="wall-card">
-                    <div className="entry-text">“{entry.text}”</div>
+                  <div key={entry.id || entry._id} className="read-feed-card">
+                    <div className="read-feed-text">“{entry.text}”</div>
 
                     {entry.suggestions?.length > 0 && (
                       <div className="approved-suggestions">
@@ -1389,30 +1955,32 @@ function App() {
                     <textarea
                       className="suggest-textarea"
                       placeholder={t.suggestionPlaceholder}
-                      value={suggestions[entry.id] || ""}
+                      value={suggestions[entry.id || entry._id] || ""}
                       onChange={(e) =>
                         setSuggestions((prev) => ({
                           ...prev,
-                          [entry.id]: e.target.value
+                          [entry.id || entry._id]: e.target.value
                         }))
                       }
-                      onKeyDown={(e) => handleSuggestionKeyDown(e, entry.id)}
+                      onKeyDown={(e) =>
+                        handleSuggestionKeyDown(e, entry.id || entry._id)
+                      }
                     />
 
                     <button
                       className="mini-send-btn"
-                      onClick={() => sendSuggestion(entry.id)}
+                      onClick={() => sendSuggestion(entry.id || entry._id)}
                     >
                       {t.suggestionBtn}
                     </button>
 
-                    {suggestionSavedId === entry.id && (
+                    {suggestionSavedId === (entry.id || entry._id) && (
                       <div className="suggestion-saved">{t.suggestionSaved}</div>
                     )}
                   </div>
                 ))
               ) : (
-                <div className="empty-read">{t.emptyRead}</div>
+                <div className="empty-read full-empty-read">{t.emptyRead}</div>
               )}
             </div>
           </div>

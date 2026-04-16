@@ -1,15 +1,20 @@
 const express = require("express");
 const cors = require("cors");
 const mongoose = require("mongoose");
-require("dotenv").config();
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
+const path = require("path");
+const fs = require("fs");
+const multer = require("multer");
+require("dotenv").config({ path: __dirname + "/.env" });
 
 const app = express();
 
 app.use(cors());
 app.use(express.json());
 app.use("/admin", express.static("admin"));
+
+console.log("ENV CHECK =", process.env.MONGODB_URI);
 
 mongoose
   .connect(process.env.MONGODB_URI)
@@ -19,6 +24,123 @@ mongoose
   .catch((err) => {
     console.error("MongoDB connection error:", err.message);
   });
+
+/* ================= HELPERS ================= */
+
+const JWT_SECRET = process.env.JWT_SECRET || "sunora_secret_key_change_this";
+
+const getSupportMessageByLanguage = (language) => {
+  if (language === "english") return "I'm here. Take your time.";
+  if (language === "hindi") return "मैं यहीं हूँ। आराम से बोलिए।";
+  return "Main yahan hoon. Aaram se bolo.";
+};
+
+function createToken(userId) {
+  return jwt.sign({ userId }, JWT_SECRET, { expiresIn: "7d" });
+}
+
+async function authMiddleware(req, res, next) {
+  try {
+    const authHeader = req.headers.authorization;
+
+    if (!authHeader || !authHeader.startsWith("Bearer ")) {
+      return res.status(401).json({
+        success: false,
+        message: "Unauthorized"
+      });
+    }
+
+    const token = authHeader.split(" ")[1];
+    const decoded = jwt.verify(token, JWT_SECRET);
+
+    const user = await User.findById(decoded.userId).select("-password");
+
+    if (!user) {
+      return res.status(401).json({
+        success: false,
+        message: "User not found"
+      });
+    }
+
+    req.user = user;
+    next();
+  } catch (err) {
+    return res.status(401).json({
+      success: false,
+      message: "Invalid or expired token"
+    });
+  }
+}
+
+async function optionalAuthMiddleware(req, res, next) {
+  try {
+    const authHeader = req.headers.authorization;
+
+    if (!authHeader || !authHeader.startsWith("Bearer ")) {
+      req.user = null;
+      return next();
+    }
+
+    const token = authHeader.split(" ")[1];
+    const decoded = jwt.verify(token, JWT_SECRET);
+
+    const user = await User.findById(decoded.userId).select("-password");
+    req.user = user || null;
+    next();
+  } catch (err) {
+    req.user = null;
+    next();
+  }
+}
+
+function adminAuthMiddleware(req, res, next) {
+  try {
+    const authHeader = req.headers.authorization;
+
+    if (!authHeader || !authHeader.startsWith("Bearer ")) {
+      return res.status(401).json({
+        success: false,
+        message: "No token provided"
+      });
+    }
+
+    const token = authHeader.split(" ")[1];
+    const decoded = jwt.verify(token, process.env.ADMIN_SECRET);
+
+    if (decoded.role !== "admin") {
+      return res.status(403).json({
+        success: false,
+        message: "Forbidden"
+      });
+    }
+
+    next();
+  } catch (err) {
+    return res.status(401).json({
+      success: false,
+      message: "Invalid token"
+    });
+  }
+}
+
+/* ================= FILE STORAGE ================= */
+
+const uploadsDir = path.join(__dirname, "uploads", "voice-notes");
+fs.mkdirSync(uploadsDir, { recursive: true });
+
+app.use("/uploads", express.static(path.join(__dirname, "uploads")));
+
+const storage = multer.diskStorage({
+  destination: function (req, file, cb) {
+    cb(null, uploadsDir);
+  },
+  filename: function (req, file, cb) {
+    const ext = path.extname(file.originalname || ".webm") || ".webm";
+    cb(null, `voice-${Date.now()}${ext}`);
+  }
+});
+
+const upload = multer({ storage });
 
 /* ================= SCHEMAS ================= */
 
@@ -30,8 +152,12 @@ const messageSchema = new mongoose.Schema({
   },
   text: {
     type: String,
-    required: true,
+    default: "",
     trim: true
+  },
+  audioUrl: {
+    type: String,
+    default: ""
   },
   time: {
     type: Date,
@@ -177,90 +303,6 @@ const Conversation = mongoose.model("Conversation", conversationSchema);
 const WriteEntry = mongoose.model("WriteEntry", writeEntrySchema);
 const Feedback = mongoose.model("Feedback", feedbackSchema);
 
-const JWT_SECRET = process.env.JWT_SECRET || "sunora_secret_key_change_this";
-
-/* ================= AUTH HELPERS ================= */
-
-function createToken(userId) {
-  return jwt.sign({ userId }, JWT_SECRET, { expiresIn: "7d" });
-}
-
-async function authMiddleware(req, res, next) {
-  try {
-    const authHeader = req.headers.authorization;
-
-    if (!authHeader || !authHeader.startsWith("Bearer ")) {
-      return res.status(401).json({
-        success: false,
-        message: "Unauthorized"
-      });
-    }
-
-    const token = authHeader.split(" ")[1];
-    const decoded = jwt.verify(token, JWT_SECRET);
-
-    const user = await User.findById(decoded.userId).select("-password");
-
-    if (!user) {
-      return res.status(401).json({
-        success: false,
-        message: "User not found"
-      });
-    }
-
-    req.user = user;
-    next();
-  } catch (err) {
-    return res.status(401).json({
-      success: false,
-      message: "Invalid or expired token"
-    });
-  }
-}
-
-async function optionalAuthMiddleware(req, res, next) {
-  try {
-    const authHeader = req.headers.authorization;
-
-    if (!authHeader || !authHeader.startsWith("Bearer ")) {
-      req.user = null;
-      return next();
-    }
-
-    const token = authHeader.split(" ")[1];
-    const decoded = jwt.verify(token, JWT_SECRET);
-
-    const user = await User.findById(decoded.userId).select("-password");
-    req.user = user || null;
-    next();
-  } catch (err) {
-    req.user = null;
-    next();
-  }
-}
-
-function adminAuthMiddleware(req, res, next) {
-  try {
-    const authHeader = req.headers.authorization;
-
-    if (!authHeader) {
-      return res.status(401).json({ success: false, message: "No token" });
-    }
-
-    const token = authHeader.split(" ")[1];
-
-    const decoded = jwt.verify(token, process.env.ADMIN_SECRET);
-
-    if (decoded.role !== "admin") {
-      return res.status(403).json({ success: false, message: "Forbidden" });
-    }
-
-    next();
-  } catch (err) {
-    return res.status(401).json({ success: false, message: "Invalid token" });
-  }
-}
-
 /* ================= ROUTES ================= */
 
 app.get("/", (req, res) => {
@@ -332,31 +374,6 @@ app.post("/api/auth/signup", async (req, res) => {
   }
 });
 
-/* ===== ADMIN LOGIN ===== */
-app.post("/api/admin/login", (req, res) => {
-  const { username, password } = req.body;
-
-  if (
-    username === process.env.ADMIN_USERNAME &&
-    password === process.env.ADMIN_PASSWORD
-  ) {
-    const token = jwt.sign(
-      { role: "admin" },
-      process.env.ADMIN_SECRET,
-      { expiresIn: "1d" }
-    );
-
-    return res.json({
-      success: true,
-      token
-    });
-  }
-
-  res.status(401).json({
-    success: false,
-    message: "Invalid admin credentials"
-  });
-});
 /* ===== AUTH: LOGIN ===== */
 app.post("/api/auth/login", async (req, res) => {
   try {
@@ -436,6 +453,85 @@ app.get("/api/auth/me", authMiddleware, async (req, res) => {
   }
 });
 
+/* ===== ADMIN LOGIN ===== */
+app.post("/api/admin/login", (req, res) => {
+  const { username, password } = req.body;
+
+  if (
+    username === process.env.ADMIN_USERNAME &&
+    password === process.env.ADMIN_PASSWORD
+  ) {
+    const token = jwt.sign(
+      { role: "admin" },
+      process.env.ADMIN_SECRET,
+      { expiresIn: "1d" }
+    );
+
+    return res.json({
+      success: true,
+      token
+    });
+  }
+
+  return res.status(401).json({
+    success: false,
+    message: "Invalid admin credentials"
+  });
+});
+
+/* ===== START CHAT ===== */
+app.post("/api/chat/start", optionalAuthMiddleware, async (req, res) => {
+  try {
+    const { username, language, gender } = req.body;
+
+    if (req.user) {
+      let conversation = await Conversation.findOne({
+        userId: req.user._id
+      }).sort({ updatedAt: -1 });
+
+      if (conversation) {
+        if (conversation.status === "closed") {
+          conversation.status = "open";
+          await conversation.save();
+        }
+
+        return res.json({
+          success: true,
+          conversation
+        });
+      }
+    }
+
+    const selectedLanguage = language || "hinglish";
+
+    const conversation = await Conversation.create({
+      userId: req.user ? req.user._id : null,
+      status: "open",
+      username: username || req.user?.name || "",
+      language: selectedLanguage,
+      gender: gender || "",
+      messages: [
+        {
+          sender: "support",
+          text: getSupportMessageByLanguage(selectedLanguage),
+          time: new Date()
+        }
+      ]
+    });
+
+    res.json({
+      success: true,
+      conversation
+    });
+  } catch (err) {
+    console.error("Start chat error:", err);
+    res.status(500).json({
+      success: false,
+      message: "Server error"
+    });
+  }
+});
+
 /* ===== MESSAGE SAVE ===== */
 app.post("/api/message", optionalAuthMiddleware, async (req, res) => {
   try {
@@ -456,30 +552,26 @@ app.post("/api/message", optionalAuthMiddleware, async (req, res) => {
 
     if (!conversation) {
       conversation = await Conversation.create({
-  userId: req.user ? req.user._id : null,
-  status: "open",
-  username: username || req.user?.name || "",
-  language: language || "hinglish",
-  gender: gender || "",
-  messages: [
-    {
-      sender: "support",
-      text: getSupportMessageByLanguage(language || "hinglish")
-    }
-  ]
-});
-const getSupportMessageByLanguage = (language) => {
-  if (language === "english") return "I'm here. Take your time.";
-  if (language === "hindi") return "मैं यहीं हूँ। आराम से बोलिए।";
-  return "Main yahan hoon. Aaram se bolo.";
-};
+        userId: req.user ? req.user._id : null,
+        status: "open",
+        username: username || req.user?.name || "",
+        language: language || "hinglish",
+        gender: gender || "",
+        messages: [
+          {
+            sender: "support",
+            text: getSupportMessageByLanguage(language || "hinglish"),
+            time: new Date()
+          }
+        ]
+      });
     }
 
     conversation.messages.push({
-  sender: "user",
-  text: text,
-  time: new Date()
-});
+      sender: "user",
+      text: text.trim(),
+      time: new Date()
+    });
 
     if (req.user && !conversation.userId) {
       conversation.userId = req.user._id;
@@ -500,6 +592,74 @@ const getSupportMessageByLanguage = (language) => {
     res.status(500).json({
       success: false,
       message: "Server error"
+    });
+  }
+});
+
+/* ===== VOICE NOTE SAVE ===== */
+app.post("/api/voice", optionalAuthMiddleware, upload.single("audio"), async (req, res) => {
+  try {
+    const { conversationId, username, language, gender } = req.body;
+
+    if (!req.file) {
+      return res.status(400).json({
+        success: false,
+        message: "Audio file missing"
+      });
+    }
+
+    const audioUrl = `${req.protocol}://${req.get("host")}/uploads/voice-notes/${req.file.filename}`;
+
+    let conversation = null;
+
+    if (conversationId && mongoose.Types.ObjectId.isValid(conversationId)) {
+      conversation = await Conversation.findById(conversationId);
+    }
+
+    if (!conversation) {
+      conversation = await Conversation.create({
+        userId: req.user ? req.user._id : null,
+        username: username || req.user?.name || "",
+        language: language || "hinglish",
+        gender: gender || "",
+        status: "open",
+        messages: [
+          {
+            sender: "support",
+            text: getSupportMessageByLanguage(language || "hinglish"),
+            time: new Date()
+          }
+        ]
+      });
+    }
+
+    conversation.messages.push({
+      sender: "user",
+      text: "",
+      audioUrl,
+      time: new Date()
+    });
+
+    if (req.user && !conversation.userId) {
+      conversation.userId = req.user._id;
+    }
+
+    if (!conversation.username && req.user?.name) {
+      conversation.username = req.user.name;
+    }
+
+    await conversation.save();
+
+    return res.json({
+      success: true,
+      conversationId: conversation._id,
+      audioUrl
+    });
+  } catch (err) {
+    console.error("Voice route error:", err);
+    return res.status(500).json({
+      success: false,
+      message: "Voice note save failed"
     });
   }
 });
@@ -798,10 +958,9 @@ app.get("/api/my/writes", authMiddleware, async (req, res) => {
   }
 });
 
-
 /* ================= ADMIN ROUTES ================= */
 
-app.get("/api/admin/conversations", adminAuthMiddleware,  async (req, res) => {
+app.get("/api/admin/conversations", adminAuthMiddleware, async (req, res) => {
   try {
     const conversations = await Conversation.find().sort({ updatedAt: -1 });
     res.json(conversations);
@@ -842,10 +1001,10 @@ app.post("/api/admin/reply", adminAuthMiddleware, async (req, res) => {
     }
 
     conversation.messages.push({
-  sender: "support",
-  text: text,
-  time: new Date()
-});
+      sender: "support",
+      text: text.trim(),
+      time: new Date()
+    });
 
     conversation.status = "open";
     await conversation.save();
@@ -863,69 +1022,7 @@ app.post("/api/admin/reply", adminAuthMiddleware, async (req, res) => {
   }
 });
 
-app.post("/api/chat/start", optionalAuthMiddleware, async (req, res) => {
-  try {
-    const { username, language, gender } = req.body;
-
-    // Logged-in user ke liye latest conversation dhoondo
-    if (req.user) {
-      let conversation = await Conversation.findOne({
-        userId: req.user._id
-      }).sort({ updatedAt: -1 });
-
-      // Agar existing conversation mili
-      if (conversation) {
-        // Closed hai toh reopen karo
-        if (conversation.status === "closed") {
-          conversation.status = "open";
-          await conversation.save();
-        }
-
-        return res.json({
-          success: true,
-          conversation
-        });
-      }
-    }
-
-    // Guest ya new user ke liye fresh conversation
-    const selectedLanguage = language || "hinglish";
-
-    const getSupportMessageByLanguage = (lang) => {
-      if (lang === "english") return "I'm here. Take your time.";
-      if (lang === "hindi") return "मैं यहीं हूँ। आराम से बोलिए।";
-      return "Main yahan hoon. Aaram se bolo.";
-    };
-
-    const conversation = await Conversation.create({
-      userId: req.user ? req.user._id : null,
-      status: "open",
-      username: username || req.user?.name || "",
-      language: selectedLanguage,
-      gender: gender || "",
-      messages: [
-        {
-          sender: "support",
-          text: getSupportMessageByLanguage(selectedLanguage),
-          time: new Date()
-        }
-      ]
-    });
-
-    res.json({
-      success: true,
-      conversation
-    });
-  } catch (err) {
-    console.error("Start chat error:", err);
-    res.status(500).json({
-      success: false,
-      message: "Server error"
-    });
-  }
-});
-
-app.get("/api/admin/write",  adminAuthMiddleware, async (req, res) => {
+app.get("/api/admin/write", adminAuthMiddleware, async (req, res) => {
   try {
     const entries = await WriteEntry.find().sort({ updatedAt: -1 });
     res.json(entries);
@@ -981,65 +1078,69 @@ app.post("/api/admin/write/:id/review", adminAuthMiddleware, async (req, res) =>
   }
 });
 
-app.post("/api/admin/write/:entryId/suggestion/:suggestionId/review", adminAuthMiddleware, async (req, res) => {
-  try {
-    const { action } = req.body;
-    const { entryId, suggestionId } = req.params;
+app.post(
+  "/api/admin/write/:entryId/suggestion/:suggestionId/review",
+  adminAuthMiddleware,
+  async (req, res) => {
+    try {
+      const { action } = req.body;
+      const { entryId, suggestionId } = req.params;
 
-    if (!mongoose.Types.ObjectId.isValid(entryId)) {
-      return res.status(400).json({
+      if (!mongoose.Types.ObjectId.isValid(entryId)) {
+        return res.status(400).json({
+          success: false,
+          message: "Invalid entry id"
+        });
+      }
+
+      if (!mongoose.Types.ObjectId.isValid(suggestionId)) {
+        return res.status(400).json({
+          success: false,
+          message: "Invalid suggestion id"
+        });
+      }
+
+      if (!["approved", "rejected"].includes(action)) {
+        return res.status(400).json({
+          success: false,
+          message: "Invalid action"
+        });
+      }
+
+      const entry = await WriteEntry.findById(entryId);
+
+      if (!entry) {
+        return res.status(404).json({
+          success: false,
+          message: "Entry not found"
+        });
+      }
+
+      const suggestion = entry.suggestions.id(suggestionId);
+
+      if (!suggestion) {
+        return res.status(404).json({
+          success: false,
+          message: "Suggestion not found"
+        });
+      }
+
+      suggestion.status = action;
+      await entry.save();
+
+      res.json({
+        success: true,
+        entry
+      });
+    } catch (err) {
+      console.error("Admin review suggestion error:", err);
+      res.status(500).json({
         success: false,
-        message: "Invalid entry id"
+        message: "Server error"
       });
     }
-
-    if (!mongoose.Types.ObjectId.isValid(suggestionId)) {
-      return res.status(400).json({
-        success: false,
-        message: "Invalid suggestion id"
-      });
-    }
-
-    if (!["approved", "rejected"].includes(action)) {
-      return res.status(400).json({
-        success: false,
-        message: "Invalid action"
-      });
-    }
-
-    const entry = await WriteEntry.findById(entryId);
-
-    if (!entry) {
-      return res.status(404).json({
-        success: false,
-        message: "Entry not found"
-      });
-    }
-
-    const suggestion = entry.suggestions.id(suggestionId);
-
-    if (!suggestion) {
-      return res.status(404).json({
-        success: false,
-        message: "Suggestion not found"
-      });
-    }
-
-    suggestion.status = action;
-    await entry.save();
-
-    res.json({
-      success: true,
-      entry
-    });
-  } catch (err) {
-    console.error("Admin review suggestion error:", err);
-    res.status(500).json({
-      success: false,
-      message: "Server error"
-    });
   }
-});
+);
 
 app.get("/api/admin/feedback", adminAuthMiddleware, async (req, res) => {
   try {
@@ -1058,70 +1159,6 @@ app.get("/api/admin/feedback", adminAuthMiddleware, async (req, res) => {
   }
 });
 
-app.post("/api/admin/login", adminAuthMiddleware, (req, res) => {
-  const { username, password } = req.body;
-
-  if (username === "admin" && password === "1234") {
-    return res.json({
-      success: true,
-      token: "admin-token"
-    });
-  }
-
-  return res.status(401).json({
-    success: false,
-    message: "Invalid admin credentials"
-  });
-});
-
-function adminAuthMiddleware(req, res, next) {
-  const authHeader = req.headers.authorization;
-
-  if (!authHeader) {
-    return res.status(401).json({
-      success: false,
-      message: "No token provided"
-    });
-  }
-
-  const token = authHeader.split(" ")[1];
-
-  const jwt = require("jsonwebtoken");
-
-function adminAuthMiddleware(req, res, next) {
-  try {
-    const authHeader = req.headers.authorization;
-
-    if (!authHeader) {
-      return res.status(401).json({
-        success: false,
-        message: "No token provided"
-      });
-    }
-
-    const token = authHeader.split(" ")[1];
-
-    const decoded = jwt.verify(token, process.env.ADMIN_SECRET);
-
-    if (decoded.role !== "admin") {
-      return res.status(403).json({
-        success: false,
-        message: "Forbidden"
-      });
-    }
-
-    next();
-  } catch (err) {
-    return res.status(401).json({
-      success: false,
-      message: "Invalid token"
-    });
-  }
-}
-
-  next();
-}
-
 app.get("/api/admin/test", adminAuthMiddleware, (req, res) => {
   res.json({ message: "Admin access granted" });
 });
@@ -1133,4 +1170,3 @@ const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
 });
-

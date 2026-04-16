@@ -41,15 +41,17 @@
         radial-gradient(circle at top right, rgba(59, 130, 246, 0.12), transparent 24%),
         linear-gradient(135deg, var(--bg-1), var(--bg-2) 52%, var(--bg-3));
     }
-textarea:disabled {
-  opacity: 0.6;
-  cursor: not-allowed;
-}
 
-.reply-btn:disabled {
-  opacity: 0.6;
-  cursor: not-allowed;
-}
+    textarea:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+
+    .reply-btn:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+
     body {
       padding: 28px;
     }
@@ -432,20 +434,22 @@ textarea:disabled {
       padding: 14px;
       box-shadow: var(--shadow-sm);
     }
-.status-open {
-  background: #ddf8e6;
-  color: #166534;
-}
 
-.status-closed {
-  background: #fde0e7;
-  color: #9f1239;
+    .status-open {
+      background: #ddf8e6;
+      color: #166534;
+    }
 
-  .closed-chat {
-  opacity: 0.65;
-  border-left: 4px solid #ef4444;
-}
-}
+    .status-closed {
+      background: #fde0e7;
+      color: #9f1239;
+    }
+
+    .closed-chat {
+      opacity: 0.65;
+      border-left: 4px solid #ef4444;
+    }
+
     textarea {
       width: 100%;
       min-height: 110px;
@@ -585,6 +589,26 @@ textarea:disabled {
       margin-bottom: 8px;
     }
 
+    .voice-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      font-weight: 700;
+      color: inherit;
+      margin-bottom: 8px;
+    }
+
+    .voice-badge::before {
+      content: "🎙️";
+    }
+
+    .admin-audio-player {
+      width: 240px;
+      max-width: 100%;
+      display: block;
+      margin-top: 4px;
+    }
+
     @media (max-width: 1100px) {
       .grid {
         grid-template-columns: 1fr;
@@ -626,10 +650,73 @@ textarea:disabled {
         padding: 16px;
       }
     }
+    .admin-reply-toolbar {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+
+.admin-emoji-toggle {
+  width: 42px;
+  height: 42px;
+  border: none;
+  border-radius: 50%;
+  cursor: pointer;
+  font-size: 20px;
+  background: rgba(124, 58, 237, 0.12);
+  color: var(--primary);
+  box-shadow: var(--shadow-sm);
+}
+
+.admin-emoji-panel {
+  margin-bottom: 12px;
+  padding: 12px;
+  border-radius: 18px;
+  background: rgba(255, 255, 255, 0.92);
+  border: 1px solid rgba(124, 58, 237, 0.08);
+  box-shadow: var(--shadow-sm);
+  max-height: 280px;
+  overflow-y: auto;
+}
+
+.admin-emoji-section {
+  margin-bottom: 12px;
+}
+
+.admin-emoji-title {
+  font-size: 12px;
+  font-weight: 800;
+  color: var(--text-soft);
+  margin-bottom: 8px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.admin-emoji-grid {
+  display: grid;
+  grid-template-columns: repeat(8, 1fr);
+  gap: 8px;
+}
+
+.admin-emoji-item {
+  border: none;
+  background: rgba(124, 58, 237, 0.06);
+  border-radius: 12px;
+  cursor: pointer;
+  font-size: 20px;
+  padding: 8px 0;
+  transition: transform 0.16s ease, background 0.16s ease;
+}
+
+.admin-emoji-item:hover {
+  transform: scale(1.08);
+  background: rgba(124, 58, 237, 0.12);
+}
   </style>
 </head>
 <body>
-
+  <div class="page-shell">
     <div class="topbar">
       <div class="brand-wrap">
         <div class="brand-badge">💬</div>
@@ -680,14 +767,28 @@ textarea:disabled {
               <div id="messages" class="messages"></div>
             </div>
 
-            <div class="composer">
-              <textarea
-                id="replyText"
-                placeholder="Reply likho..."
-                onkeydown="handleReplyKeyDown(event)"
-              ></textarea>
-              <button class="reply-btn" onclick="sendReply()">Reply bhejo</button>
-            </div>
+           <div class="composer">
+  <div id="adminEmojiPanelWrap"></div>
+
+  <div class="admin-reply-toolbar">
+    <button
+      type="button"
+      class="admin-emoji-toggle"
+      onclick="toggleAdminEmojiPanel()"
+      title="Emoji"
+    >
+      😊
+    </button>
+  </div>
+
+  <textarea
+    id="replyText"
+    placeholder="Reply likho..."
+    onkeydown="handleReplyKeyDown(event)"
+  ></textarea>
+
+  <button class="reply-btn" onclick="sendReply()">Reply bhejo</button>
+</div>
           </div>
         </div>
       </div>
@@ -746,11 +847,11 @@ textarea:disabled {
   </div>
 
   <script>
-   const ADMIN_TOKEN = localStorage.getItem("adminToken");
+    const ADMIN_TOKEN = localStorage.getItem("adminToken");
 
-if (!ADMIN_TOKEN) {
-  window.location.href = "/admin/";
-}
+    if (!ADMIN_TOKEN) {
+      window.location.href = "/admin/";
+    }
 
     function adminHeaders(extra = {}) {
       return {
@@ -758,10 +859,84 @@ if (!ADMIN_TOKEN) {
         ...extra
       };
     }
-function logoutAdmin() {
-  localStorage.removeItem("adminToken");
-  window.location.href = "/admin/";
-}
+
+  const adminEmojiCategories = {
+    Smileys: ["😀", "😄", "😊", "🙂", "😌", "🥺", "😔", "😢", "😭", "😤", "😴", "😵‍💫"],
+    Hearts: ["❤️", "🩷", "💜", "💙", "🤍", "💖", "💕", "💘", "💓", "💞"],
+    Support: ["🫂", "🌈", "✨", "🙏", "🤝", "💪", "🌸", "🍀", "☀️", "🌙", "🕊️"],
+    Reactions: ["👍", "👎", "👏", "🙌", "🤞", "👀", "😶‍🌫️", "😮", "😣", "😞", "😡"]
+  };
+
+  let showAdminEmojiPanel = false;
+
+  function addReplyEmoji(emoji) {
+    const box = document.getElementById("replyText");
+    if (!box) return;
+    box.value += emoji;
+    box.focus();
+  }
+
+  function toggleAdminEmojiPanel() {
+    showAdminEmojiPanel = !showAdminEmojiPanel;
+    renderAdminEmojiPanel();
+  }
+
+  function closeAdminEmojiPanel() {
+    showAdminEmojiPanel = false;
+    renderAdminEmojiPanel();
+  }
+
+  function renderAdminEmojiPanel() {
+    const wrap = document.getElementById("adminEmojiPanelWrap");
+    if (!wrap) return;
+
+    if (!showAdminEmojiPanel) {
+      wrap.innerHTML = "";
+      return;
+    }
+
+    wrap.innerHTML = `
+      <div class="admin-emoji-panel">
+        ${Object.keys(adminEmojiCategories)
+          .map(
+            (category) => `
+              <div class="admin-emoji-section">
+                <div class="admin-emoji-title">${category}</div>
+                <div class="admin-emoji-grid">
+                  ${adminEmojiCategories[category]
+                    .map(
+                      (emoji) => `
+                        <button
+                          type="button"
+                          class="admin-emoji-item"
+                          onclick="addReplyEmoji('${emoji.replace(/'/g, "\\'")}')"
+                        >
+                          ${emoji}
+                        </button>
+                      `
+                    )
+                    .join("")}
+                </div>
+              </div>
+            `
+          )
+          .join("")}
+      </div>
+    `;
+  }
+
+  document.addEventListener("click", (e) => {
+    if (!e.target.closest(".admin-emoji-panel") && !e.target.closest(".admin-emoji-toggle")) {
+      closeAdminEmojiPanel();
+    }
+  });
+
+
+    function logoutAdmin() {
+      localStorage.removeItem("adminToken");
+      window.location.href = "/admin/";
+    }
+
     let conversations = [];
     let selectedConversationId = null;
 
@@ -827,22 +1002,22 @@ function logoutAdmin() {
     }
 
     function formatTime(value) {
-  if (!value) return "";
+      if (!value) return "";
 
-  const date = new Date(value);
+      const date = new Date(value);
 
-  const day = date.toLocaleDateString([], {
-    day: "2-digit",
-    month: "short"
-  });
+      const day = date.toLocaleDateString([], {
+        day: "2-digit",
+        month: "short"
+      });
 
-  const time = date.toLocaleTimeString([], {
-    hour: "2-digit",
-    minute: "2-digit"
-  });
+      const time = date.toLocaleTimeString([], {
+        hour: "2-digit",
+        minute: "2-digit"
+      });
 
-  return `${day}, ${time}`;
-}
+      return `${day}, ${time}`;
+    }
 
     function updateTopStats() {
       const convCountEl = document.getElementById("conversationCount");
@@ -886,11 +1061,11 @@ function logoutAdmin() {
           headers: adminHeaders()
         });
 
-       if (res.status === 401 || res.status === 403) {
-  localStorage.removeItem("adminToken");
-  window.location.href = "/admin/";
-  return;
-}
+        if (res.status === 401 || res.status === 403) {
+          localStorage.removeItem("adminToken");
+          window.location.href = "/admin/";
+          return;
+        }
 
         const data = await res.json();
         conversations = Array.isArray(data) ? data : [];
@@ -931,36 +1106,41 @@ function logoutAdmin() {
         const item = document.createElement("div");
         const isClosed = conv.status === "closed";
 
-item.className =
-  "conversation-item" +
-  (convId === selectedConversationId ? " active" : "") +
-  (isClosed ? " closed-chat" : "");
+        item.className =
+          "conversation-item" +
+          (convId === selectedConversationId ? " active" : "") +
+          (isClosed ? " closed-chat" : "");
 
         const lastMsg = conv.messages?.[conv.messages.length - 1];
-        const previewText = lastMsg ? lastMsg.text : "No messages yet";
+        const previewText = lastMsg
+          ? lastMsg.audioUrl
+            ? "🎙️ Voice note"
+            : lastMsg.text || "No messages yet"
+          : "No messages yet";
 
         item.innerHTML = `
-  <div class="item-title">
-    <span class="mini-avatar">${getInitial(conv.username)}</span>
-    <span>${prettyValue(conv.username, "Anonymous")} • #${shortId(conv)}</span>
-  </div>
-  <div class="item-preview">${escapeHtml(previewText)}</div>
+          <div class="item-title">
+            <span class="mini-avatar">${getInitial(conv.username)}</span>
+            <span>${prettyValue(conv.username, "Anonymous")} • #${shortId(conv)}</span>
+          </div>
+          <div class="item-preview">${escapeHtml(previewText)}</div>
 
-  <div class="muted">
-    ${prettyLanguage(conv.language)} • ${prettyGender(conv.gender)}
-  </div>
+          <div class="muted">
+            ${prettyLanguage(conv.language)} • ${prettyGender(conv.gender)}
+          </div>
 
-  <div style="margin-top:6px;">
-    <span class="status-badge ${conv.status === "closed" ? "status-closed" : "status-open"}">
-      ${conv.status === "closed" ? "Closed" : "Open"}
-    </span>
-  </div>
-`;
+          <div style="margin-top:6px;">
+            <span class="status-badge ${conv.status === "closed" ? "status-closed" : "status-open"}">
+              ${conv.status === "closed" ? "Closed" : "Open"}
+            </span>
+          </div>
+        `;
 
         item.onclick = () => {
           selectedConversationId = convId;
           renderConversations();
           renderConversationMeta();
+          toggleReplyComposer();
           renderMessages();
         };
 
@@ -1030,7 +1210,15 @@ item.className =
 
         const bubble = document.createElement("div");
         bubble.className = "bubble";
-        bubble.innerText = msg.text;
+
+        if (msg.audioUrl) {
+          bubble.innerHTML = `
+            <div class="voice-badge">Voice note</div>
+            <audio controls class="admin-audio-player" src="${escapeHtml(msg.audioUrl)}"></audio>
+          `;
+        } else {
+          bubble.innerText = msg.text || "";
+        }
 
         const time = document.createElement("div");
         time.className = "msg-time";
@@ -1055,13 +1243,14 @@ item.className =
 
     async function sendReply() {
       const selected = conversations.find(
-  (c) => getId(c) === selectedConversationId
-);
+        (c) => getId(c) === selectedConversationId
+      );
 
-if (!selected || selected.status === "closed") {
-  alert("Ye chat closed hai. Reply allowed nahi hai.");
-  return;
-}
+      if (!selected || selected.status === "closed") {
+        alert("Ye chat closed hai. Reply allowed nahi hai.");
+        return;
+      }
+
       try {
         const replyText = document.getElementById("replyText").value.trim();
         if (!replyText || !selectedConversationId) return;
@@ -1099,10 +1288,10 @@ if (!selected || selected.status === "closed") {
         });
 
         if (res.status === 401 || res.status === 403) {
-  localStorage.removeItem("adminToken");
-  window.location.href = "/admin/";
-  return;
-}
+          localStorage.removeItem("adminToken");
+          window.location.href = "/admin/";
+          return;
+        }
 
         const data = await res.json();
         writeEntries = Array.isArray(data) ? data : [];
@@ -1377,41 +1566,43 @@ if (!selected || selected.status === "closed") {
         alert("Suggestion review update nahi hua.");
       }
     }
-function toggleReplyComposer() {
-  const selected = conversations.find(
-    (c) => getId(c) === selectedConversationId
-  );
 
-  const replyBox = document.getElementById("replyText");
-  const replyBtn = document.querySelector(".reply-btn");
+    function toggleReplyComposer() {
+      const selected = conversations.find(
+        (c) => getId(c) === selectedConversationId
+      );
 
-  if (!replyBox || !replyBtn) return;
+      const replyBox = document.getElementById("replyText");
+      const replyBtn = document.querySelector(".reply-btn");
 
-  const isClosed = selected && selected.status === "closed";
+      if (!replyBox || !replyBtn) return;
 
-  replyBox.disabled = isClosed;
-  replyBtn.disabled = isClosed;
+      const isClosed = selected && selected.status === "closed";
 
-  if (isClosed) {
-    replyBox.placeholder = "Chat closed hai. Reply disabled.";
-    replyBox.value = "";
-    replyBtn.textContent = "Closed";
-  } else {
-    replyBox.placeholder = "Reply likho...";
-    replyBtn.textContent = "Reply bhejo";
-  }
-}
+      replyBox.disabled = isClosed;
+      replyBtn.disabled = isClosed;
+
+      if (isClosed) {
+        replyBox.placeholder = "Chat closed hai. Reply disabled.";
+        replyBox.value = "";
+        replyBtn.textContent = "Closed";
+      } else {
+        replyBox.placeholder = "Reply likho...";
+        replyBtn.textContent = "Reply bhejo";
+      }
+    }
+
     async function loadFeedbackEntries() {
       try {
         const res = await fetch("/api/admin/feedback", {
           headers: adminHeaders()
         });
 
-       if (res.status === 401 || res.status === 403) {
-  localStorage.removeItem("adminToken");
-  window.location.href = "/admin/";
-  return;
-}
+        if (res.status === 401 || res.status === 403) {
+          localStorage.removeItem("adminToken");
+          window.location.href = "/admin/";
+          return;
+        }
 
         const data = await res.json();
         feedbackEntries = Array.isArray(data) ? data : [];
