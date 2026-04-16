@@ -1027,7 +1027,19 @@ function App() {
         const data = await res.json();
 
         if (data.success && data.conversation) {
-          setMessages(data.conversation.messages || []);
+       setMessages((prev) => {
+  const newMsgs = data.conversation.messages || [];
+
+  // agar length same hai aur content bhi same hai → update mat kar
+  if (
+    prev.length === newMsgs.length &&
+    JSON.stringify(prev) === JSON.stringify(newMsgs)
+  ) {
+    return prev;
+  }
+
+  return newMsgs;
+});
 
           const lastMsg =
             data.conversation.messages?.[data.conversation.messages.length - 1];
@@ -1042,7 +1054,7 @@ function App() {
     };
 
     fetchConversation();
-    const interval = setInterval(fetchConversation, 3000);
+    const interval = setInterval(fetchConversation, 6000);
 
     return () => clearInterval(interval);
   }, [conversationId, screen]);
