@@ -1184,62 +1184,65 @@
       `;
     }
 
-    function renderMessages() {
-      const selected = conversations.find(
-        (c) => getId(c) === selectedConversationId
-      );
 
-      const messagesBox = document.getElementById("messages");
-      messagesBox.innerHTML = "";
+function renderMessages() {
+  const selected = conversations.find(
+    (c) => getId(c) === selectedConversationId
+  );
 
-      if (!selected) {
-        messagesBox.innerHTML = `<div class="empty-box">Koi conversation select nahi hai.</div>`;
-        return;
-      }
+  const messagesBox = document.getElementById("messages");
+  messagesBox.innerHTML = "";
 
-      (selected.messages || []).forEach((msg) => {
-        const row = document.createElement("div");
-        row.className = `msg ${msg.sender}`;
+  if (!selected) {
+    messagesBox.innerHTML = `<div class="empty-box">Koi conversation select nahi hai.</div>`;
+    return;
+  }
 
-        const avatar = document.createElement("div");
-        avatar.className = "msg-avatar";
-        avatar.textContent = msg.sender === "user" ? "U" : "S";
+  (selected.messages || []).forEach((msg) => {
+    const row = document.createElement("div");
+    row.className = `msg ${msg.sender}`;
 
-        const bubbleWrap = document.createElement("div");
-        bubbleWrap.className = "bubble-wrap";
+    const avatar = document.createElement("div");
+    avatar.className = "msg-avatar";
+    avatar.textContent = msg.sender === "user" ? "U" : "S";
 
-        const bubble = document.createElement("div");
-        bubble.className = "bubble";
+    const bubbleWrap = document.createElement("div");
+    bubbleWrap.className = "bubble-wrap";
 
-        if (msg.audioUrl) {
-          bubble.innerHTML = `
-            <div class="voice-badge">Voice note</div>
-            <audio controls class="admin-audio-player" src="${escapeHtml(msg.audioUrl)}"></audio>
-          `;
-        } else {
-          bubble.innerText = msg.text || "";
-        }
+    const bubble = document.createElement("div");
+    bubble.className = "bubble";
 
-        const time = document.createElement("div");
-        time.className = "msg-time";
-        time.textContent = formatTime(msg.time);
+    if (msg.audioUrl) {
+      const safeAudioUrl = String(msg.audioUrl).replace("http://", "https://");
 
-        bubbleWrap.appendChild(bubble);
-        bubbleWrap.appendChild(time);
-
-        if (msg.sender === "user") {
-          row.appendChild(bubbleWrap);
-          row.appendChild(avatar);
-        } else {
-          row.appendChild(avatar);
-          row.appendChild(bubbleWrap);
-        }
-
-        messagesBox.appendChild(row);
-      });
-
-      messagesBox.scrollTop = messagesBox.scrollHeight;
+      bubble.innerHTML = `
+        <div class="voice-badge">Voice note</div>
+        <audio controls class="admin-audio-player" src="${escapeHtml(safeAudioUrl)}"></audio>
+      `;
+    } else {
+      bubble.innerText = msg.text || "";
     }
+
+    const time = document.createElement("div");
+    time.className = "msg-time";
+    time.textContent = formatTime(msg.time);
+
+    bubbleWrap.appendChild(bubble);
+    bubbleWrap.appendChild(time);
+
+    if (msg.sender === "user") {
+      row.appendChild(bubbleWrap);
+      row.appendChild(avatar);
+    } else {
+      row.appendChild(avatar);
+      row.appendChild(bubbleWrap);
+    }
+
+    messagesBox.appendChild(row);
+  });
+
+  messagesBox.scrollTop = messagesBox.scrollHeight;
+}
 
     async function sendReply() {
       const selected = conversations.find(

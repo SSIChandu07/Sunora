@@ -1568,7 +1568,7 @@ function App() {
   onClick={endChatNow}
   title="End Chat"
 >
-  ❌
+  ✘
 </button>
               </div>
             </div>

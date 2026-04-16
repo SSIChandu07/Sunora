@@ -10,11 +10,12 @@ require("dotenv").config({ path: __dirname + "/.env" });
 
 const app = express();
 
+app.set("trust proxy", 1);
+
 app.use(cors());
 app.use(express.json());
 app.use("/admin", express.static("admin"));
 app.use("/uploads", express.static("uploads"));
-
 console.log("ENV CHECK =", process.env.MONGODB_URI);
 
 mongoose
@@ -609,7 +610,8 @@ app.post("/api/voice", optionalAuthMiddleware, upload.single("audio"), async (re
       });
     }
 
-    const audioUrl = `${req.protocol}://${req.get("host")}/uploads/voice-notes/${req.file.filename}`;
+    const host = req.get("host");
+    const audioUrl = `https://${host}/uploads/voice-notes/${req.file.filename}`;
 
     let conversation = null;
 
@@ -664,7 +666,6 @@ app.post("/api/voice", optionalAuthMiddleware, upload.single("audio"), async (re
     });
   }
 });
-
 /* ===== GET CONVERSATION ===== */
 app.get("/api/conversation/:id", async (req, res) => {
   try {
