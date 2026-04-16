@@ -1,3 +1,6 @@
+const cloudinary = require("cloudinary").v2;
+const streamifier = require("streamifier");
+
 const express = require("express");
 const cors = require("cors");
 const mongoose = require("mongoose");
@@ -9,6 +12,11 @@ const multer = require("multer");
 require("dotenv").config({ path: __dirname + "/.env" });
 
 const app = express();
+cloudinary.config({
+  cloud_name: process.env.CLOUDINARY_CLOUD_NAME=dnknnmvcg,
+  api_key: process.env.CLOUDINARY_API_KEY=717661562866679,
+  api_secret: process.env.CLOUDINARY_API_SECRET=zU9xV5liZ7J7CIjZFtcvXH3kUmY
+});
 
 app.set("trust proxy", 1);
 
@@ -132,17 +140,33 @@ fs.mkdirSync(uploadsDir, { recursive: true });
 
 app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 
-const storage = multer.diskStorage({
-  destination: function (req, file, cb) {
-    cb(null, uploadsDir);
+const upload = multer({
+  storage: multer.memoryStorage(),
+  limits: {
+    fileSize: 15 * 1024 * 1024
   },
   filename: function (req, file, cb) {
     const ext = path.extname(file.originalname || ".webm") || ".webm";
     cb(null, `voice-${Date.now()}${ext}`);
   }
 });
+function uploadBufferToCloudinary(buffer, folder = "sunora/voice-notes") {
+  return new Promise((resolve, reject) => {
+    const uploadStream = cloudinary.uploader.upload_stream(
+      {
+        resource_type: "video",
+        folder,
+        format: "webm"
+      },
+      (error, result) => {
+        if (error) return reject(error);
+        resolve(result);
+      }
+    );
 
-const upload = multer({ storage });
+    streamifier.createReadStream(buffer).pipe(uploadStream);
+  });
+}
 
 /* ================= SCHEMAS ================= */
 
@@ -603,15 +627,16 @@ app.post("/api/voice", optionalAuthMiddleware, upload.single("audio"), async (re
   try {
     const { conversationId, username, language, gender } = req.body;
 
-    if (!req.file) {
+    if (!req.file || !req.file.buffer) {
       return res.status(400).json({
         success: false,
         message: "Audio file missing"
       });
     }
 
-    const host = req.get("host");
-    const audioUrl = `https://${host}/uploads/voice-notes/${req.file.filename}`;
+    const uploaded = await uploadBufferToCloudinary(req.file.buffer);
+
+    const audioUrl = uploaded.secure_url;
 
     let conversation = null;
 

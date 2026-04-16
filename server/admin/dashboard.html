@@ -1213,15 +1213,13 @@ function renderMessages() {
     bubble.className = "bubble";
 
     if (msg.audioUrl) {
-      const safeAudioUrl = String(msg.audioUrl).replace("http://", "https://");
-
-      bubble.innerHTML = `
-        <div class="voice-badge">Voice note</div>
-        <audio controls class="admin-audio-player" src="${escapeHtml(safeAudioUrl)}"></audio>
-      `;
-    } else {
-      bubble.innerText = msg.text || "";
-    }
+  bubble.innerHTML = `
+    <div class="voice-badge">Voice note</div>
+    <audio controls class="admin-audio-player" src="${escapeHtml(msg.audioUrl)}"></audio>
+  `;
+} else {
+  bubble.innerText = msg.text || "";
+}
 
     const time = document.createElement("div");
     time.className = "msg-time";
@@ -1703,13 +1701,27 @@ function renderMessages() {
       updateTopStats();
     }
 
-    initialLoad();
+   initialLoad();
 
-    setInterval(async () => {
-      await loadConversations();
-      await loadWriteEntries();
-      await loadFeedbackEntries();
-    }, 3000);
+let adminRefreshInterval = null;
+
+function startAdminAutoRefresh() {
+  if (adminRefreshInterval) clearInterval(adminRefreshInterval);
+
+  adminRefreshInterval = setInterval(async () => {
+    const audioEl = document.querySelector(".admin-audio-player");
+
+    if (audioEl && !audioEl.paused && !audioEl.ended) {
+      return;
+    }
+
+    await loadConversations();
+    await loadWriteEntries();
+    await loadFeedbackEntries();
+  }, 6000);
+}
+
+startAdminAutoRefresh();
   </script>
 </body>
 </html>
