@@ -1694,34 +1694,10 @@ function renderMessages() {
       `;
     }
 
-    async function initialLoad() {
-      await loadConversations();
-      await loadWriteEntries();
-      await loadFeedbackEntries();
-      updateTopStats();
-    }
 
    initialLoad();
 
-let adminRefreshInterval = null;
 
-function startAdminAutoRefresh() {
-  if (adminRefreshInterval) clearInterval(adminRefreshInterval);
-
-  adminRefreshInterval = setInterval(async () => {
-    const audioEl = document.querySelector(".admin-audio-player");
-
-    if (audioEl && !audioEl.paused && !audioEl.ended) {
-      return;
-    }
-
-    await loadConversations();
-    await loadWriteEntries();
-    await loadFeedbackEntries();
-  }, 6000);
-}
-
-startAdminAutoRefresh();
   </script>
 </body>
 </html>
