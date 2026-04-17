@@ -1,3 +1,5 @@
+require("dotenv").config();
+
 const cloudinary = require("cloudinary").v2;
 const streamifier = require("streamifier");
 
@@ -9,7 +11,6 @@ const jwt = require("jsonwebtoken");
 const path = require("path");
 const fs = require("fs");
 const multer = require("multer");
-require("dotenv").config({ path: __dirname + "/.env" });
 
 const app = express();
 cloudinary.config({
@@ -135,19 +136,10 @@ function adminAuthMiddleware(req, res, next) {
 
 /* ================= FILE STORAGE ================= */
 
-const uploadsDir = path.join(__dirname, "uploads", "voice-notes");
-fs.mkdirSync(uploadsDir, { recursive: true });
-
-app.use("/uploads", express.static(path.join(__dirname, "uploads")));
-
 const upload = multer({
   storage: multer.memoryStorage(),
   limits: {
     fileSize: 15 * 1024 * 1024
-  },
-  filename: function (req, file, cb) {
-    const ext = path.extname(file.originalname || ".webm") || ".webm";
-    cb(null, `voice-${Date.now()}${ext}`);
   }
 });
 function uploadBufferToCloudinary(buffer, folder = "sunora/voice-notes") {
@@ -168,6 +160,22 @@ function uploadBufferToCloudinary(buffer, folder = "sunora/voice-notes") {
   });
 }
 
+function uploadToCloudinary(buffer) {
+  return new Promise((resolve, reject) => {
+    const stream = cloudinary.uploader.upload_stream(
+      {
+        resource_type: "video",
+        folder: "sunora/voice-notes"
+      },
+      (error, result) => {
+        if (error) return reject(error);
+        resolve(result);
+      }
+    );
+
+    streamifier.createReadStream(buffer).pipe(stream);
+  });
+}
 /* ================= SCHEMAS ================= */
 
 const messageSchema = new mongoose.Schema({
@@ -635,7 +643,6 @@ app.post("/api/voice", optionalAuthMiddleware, upload.single("audio"), async (re
     }
 
     const uploaded = await uploadBufferToCloudinary(req.file.buffer);
-
     const audioUrl = uploaded.secure_url;
 
     let conversation = null;
