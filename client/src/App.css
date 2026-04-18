@@ -1441,52 +1441,71 @@ textarea::placeholder {
 
 /* Emoji Panel (Bottom Drawer Style) */
 .emoji-panel {
-  position: absolute;
-  bottom: 70px;
-  left: 0;
-  width: 100%;
-  max-height: 260px;
+  margin-top: 8px;
+  padding: 10px 12px;
+  border-radius: 20px;
+  background: rgba(255, 255, 255, 0.96);
+  border: 1px solid rgba(124, 58, 237, 0.08);
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.12);
+  max-height: 180px;
   overflow-y: auto;
-  background: rgba(255,255,255,0.95);
-  border-radius: 16px;
-  padding: 10px;
-  box-shadow: 0 -4px 20px rgba(0,0,0,0.1);
-  backdrop-filter: blur(10px);
-  z-index: 999;
 }
 
-/* Section */
-.emoji-section {
+.emoji-tabs {
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  gap: 6px;
   margin-bottom: 10px;
+  padding-bottom: 6px;
+  border-bottom: 1px solid rgba(124, 58, 237, 0.08);
 }
 
-.emoji-title {
-  font-size: 12px;
-  font-weight: 700;
-  color: #666;
-  margin-bottom: 6px;
+.emoji-tab-icon {
+  border: none;
+  background: transparent;
+  font-size: 20px;
+  cursor: pointer;
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  transition: 0.18s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
-/* Grid */
-.emoji-grid {
+.emoji-tab-icon:hover {
+  background: rgba(124, 58, 237, 0.08);
+  transform: scale(1.08);
+}
+
+.emoji-tab-icon.active {
+  background: linear-gradient(135deg, #7c3aed, #a855f7);
+  color: white;
+  box-shadow: 0 6px 16px rgba(124, 58, 237, 0.22);
+}
+
+.emoji-grid-new {
   display: grid;
-  grid-template-columns: repeat(8, 1fr);
+  grid-template-columns: repeat(7, 1fr);
   gap: 6px;
 }
 
-/* Emoji Item */
-.emoji-item {
-  font-size: 20px;
+.emoji-item-new {
+  border: none;
+  background: transparent;
+  font-size: 21px;
   cursor: pointer;
   text-align: center;
-  padding: 4px;
-  border-radius: 8px;
-  transition: 0.2s;
+  padding: 6px 0;
+  border-radius: 10px;
+  transition: 0.16s ease;
 }
 
-.emoji-item:hover {
-  background: rgba(124,58,237,0.1);
-  transform: scale(1.2);
+.emoji-item-new:hover {
+  background: rgba(124, 58, 237, 0.08);
+  transform: scale(1.16);
 }
 
 .disabled-mic,

@@ -210,6 +210,7 @@ function App() {
   const [feedbackSubmitting, setFeedbackSubmitting] = useState(false);
 
   const [showEmojiPanel, setShowEmojiPanel] = useState(false);
+  const [activeEmojiTab, setActiveEmojiTab] = useState("😀");
   const [emojiTarget, setEmojiTarget] = useState("chat");
 
   const [authMode, setAuthMode] = useState("login");
@@ -850,6 +851,35 @@ const voiceNoteAlreadyUsedInUI =
     }
   };
 
+  const resumeConversationFromStorage = async () => {
+  try {
+    const savedConversationId = localStorage.getItem("conversationId");
+    if (!savedConversationId) return;
+
+    const res = await fetch(`${API_BASE}/api/conversation/${savedConversationId}`);
+    const data = await res.json();
+
+    if (!res.ok || !data.success || !data.conversation) {
+      localStorage.removeItem("conversationId");
+      return;
+    }
+
+    const conv = data.conversation;
+
+    if (conv.status === "closed") {
+      localStorage.removeItem("conversationId");
+      return;
+    }
+
+    setConversationId(conv._id);
+    setMessages(conv.messages || []);
+    syncVoiceLimitFromMessages(conv.messages || []);
+    setScreen("chat");
+  } catch (err) {
+    console.error("Resume conversation error:", err);
+  }
+};
+
  const endChatNow = async () => {
   const confirmEnd = window.confirm("Are you sure you want to end this chat?");
   if (!confirmEnd) return;
@@ -1062,6 +1092,10 @@ const voiceNoteAlreadyUsedInUI =
   useEffect(() => {
     loadCurrentUser();
   }, []);
+
+  useEffect(() => {
+  resumeConversationFromStorage();
+}, []);
 
   useEffect(() => {
     if (currentUser) {
@@ -1676,28 +1710,35 @@ const voiceNoteAlreadyUsedInUI =
             </div>
 
             <div className="chat-bottom-wrap">
-              {showEmojiPanel && emojiTarget === "chat" && (
-                <div className="emoji-panel">
-                  {Object.keys(emojiCategories).map((category) => (
-                    <div key={category} className="emoji-section">
-                      <div className="emoji-title">{category}</div>
-                      <div className="emoji-grid">
-                        {emojiCategories[category].map((emoji, index) => (
-                          <button
-                            key={`${category}-${index}`}
-                            type="button"
-                            className="emoji-item"
-                            onClick={() => handleEmojiSelect(emoji)}
-                          >
-                            {emoji}
-                          </button>
-                        ))}
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              )}
+             {showEmojiPanel && emojiTarget === "chat" && (
+  <div className="emoji-panel">
+    <div className="emoji-tabs">
+  {Object.keys(emojiCategories).map((category) => (
+    <button
+      key={category}
+      type="button"
+      className={`emoji-tab-icon ${activeEmojiTab === category ? "active" : ""}`}
+      onClick={() => setActiveEmojiTab(category)}
+    >
+      {category}
+    </button>
+  ))}
+</div>
 
+    <div className="emoji-grid-new">
+      {emojiCategories[activeEmojiTab].map((emoji, index) => (
+        <button
+          key={`${activeEmojiTab}-${index}`}
+          type="button"
+          className="emoji-item-new"
+          onClick={() => handleEmojiSelect(emoji)}
+        >
+          {emoji}
+        </button>
+      ))}
+    </div>
+  </div>
+)}
               {audioPreviewUrl && (
                 <div className="voice-preview-bar">
                   <div className="voice-preview-left">
