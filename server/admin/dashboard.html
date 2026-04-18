@@ -1212,341 +1212,94 @@ function renderMessages() {
   );
 
   const messagesBox = document.getElementById("messages");
+  if (!messagesBox) return;
 
   const currentAudio = document.querySelector(".admin-audio-player");
   if (currentAudio && !currentAudio.paused && !currentAudio.ended) {
     return;
   }
 
- 
+  if (!selected) {
+    messagesBox.innerHTML = `<div class="empty-box">Koi conversation select nahi hai.</div>`;
+    return;
+  }
 
-    async function sendReply() {
-      const selected = conversations.find(
-        (c) => getId(c) === selectedConversationId
-      );
+  const msgs = Array.isArray(selected.messages) ? selected.messages : [];
 
-      if (!selected || selected.status === "closed") {
-        alert("Ye chat closed hai. Reply allowed nahi hai.");
-        return;
-      }
+  if (!msgs.length) {
+    messagesBox.innerHTML = `<div class="empty-box">Abhi koi messages nahi hain.</div>`;
+    return;
+  }
 
-      try {
-        const replyText = document.getElementById("replyText").value.trim();
-        if (!replyText || !selectedConversationId) return;
+  messagesBox.innerHTML = msgs
+    .map((msg) => {
+      const senderClass = msg.sender === "user" ? "user" : "support";
+      const avatar = msg.sender === "user" ? getInitial(selected.username) : "S";
+      const content = msg.audioUrl
+        ? `
+          <div class="voice-badge">Voice note</div>
+          <audio class="admin-audio-player" controls preload="metadata" src="${escapeHtml(msg.audioUrl)}"></audio>
+        `
+        : `<div class="bubble">${escapeHtml(msg.text || "")}</div>`;
 
-        const res = await fetch("/api/admin/reply", {
-          method: "POST",
-          headers: adminHeaders({
-            "Content-Type": "application/json"
-          }),
-          body: JSON.stringify({
-            conversationId: selectedConversationId,
-            text: replyText
-          })
-        });
-
-        const data = await res.json();
-
-        if (!res.ok || !data.success) {
-          alert(data.message || "Reply bhejne me issue aaya.");
-          return;
-        }
-
-        document.getElementById("replyText").value = "";
-        await loadConversations();
-      } catch (err) {
-        console.error("Send reply error:", err);
-        alert("Reply bhejne me issue aaya.");
-      }
-    }
-
-    async function loadWriteEntries() {
-      try {
-        const res = await fetch("/api/admin/write", {
-          headers: adminHeaders()
-        });
-
-        if (res.status === 401 || res.status === 403) {
-          localStorage.removeItem("adminToken");
-          window.location.href = "/admin/";
-          return;
-        }
-
-        const data = await res.json();
-        writeEntries = Array.isArray(data) ? data : [];
-
-        if (!selectedWriteId && writeEntries.length > 0) {
-          selectedWriteId = getId(writeEntries[0]);
-        }
-
-        renderWriteEntries();
-        renderWriteDetails();
-        buildPendingSuggestions();
-        updateTopStats();
-      } catch (err) {
-        console.error("Load write entries error:", err);
-      }
-    }
-
-    function renderWriteEntries() {
-      const list = document.getElementById("writeList");
-      list.innerHTML = "";
-
-      if (!writeEntries.length) {
-        list.innerHTML = `<div class="empty-box">Abhi koi write entry nahi hai.</div>`;
-        return;
-      }
-
-      writeEntries.forEach((entry) => {
-        const entryId = getId(entry);
-        const item = document.createElement("div");
-        item.className = "write-item" + (entryId === selectedWriteId ? " active" : "");
-
-        const preview =
-          entry.text.length > 80 ? entry.text.slice(0, 80) + "..." : entry.text;
-
-        item.innerHTML = `
-          <div class="item-title">
-            <span class="mini-avatar">${getInitial(entry.username)}</span>
-            <span>${prettyValue(entry.username, "Anonymous")} • #${shortId(entry)}</span>
+      return `
+        <div class="msg ${senderClass}">
+          <div class="msg-avatar">${avatar}</div>
+          <div class="bubble-wrap">
+            ${content}
+            <div class="msg-time">${formatTime(msg.time)}</div>
           </div>
-          <div class="item-preview">${escapeHtml(preview)}</div>
-          <div class="muted">
-            ${prettyLanguage(entry.language)} • ${prettyGender(entry.gender)} • status: ${escapeHtml(entry.approvalStatus || "private")}
-          </div>
-        `;
-
-        item.onclick = () => {
-          selectedWriteId = entryId;
-          renderWriteEntries();
-          renderWriteDetails();
-        };
-
-        list.appendChild(item);
-      });
-    }
-
-    function renderWriteDetails() {
-      const wrap = document.getElementById("writeDetails");
-      const entry = writeEntries.find((e) => getId(e) === selectedWriteId);
-
-      if (!entry) {
-        wrap.innerHTML = `<div class="empty-box">Koi entry select karo.</div>`;
-        return;
-      }
-
-      wrap.innerHTML = `
-        <div class="status-badge ${formatStatusClass(entry.approvalStatus)}">
-          ${escapeHtml(entry.approvalStatus || "private")}
-        </div>
-
-        <div class="meta-box">
-          <div><strong>Entry ID:</strong> ${escapeHtml(getId(entry))}</div>
-          <div><strong>Username:</strong> ${prettyValue(entry.username, "Anonymous")}</div>
-          <div><strong>Language:</strong> ${prettyLanguage(entry.language)}</div>
-          <div><strong>Gender:</strong> ${prettyGender(entry.gender)}</div>
-          <div><strong>Consent to share:</strong> ${entry.consentToShare ? "Yes" : "No"}</div>
-          <div><strong>Total suggestions:</strong> ${(entry.suggestions || []).length}</div>
-        </div>
-
-        <div class="write-full">${escapeHtml(entry.text)}</div>
-
-        <div class="action-row">
-          <button class="action-btn" onclick="reviewWriteEntry('approved')">Approve</button>
-          <button class="action-btn danger" onclick="reviewWriteEntry('rejected')">Reject</button>
-        </div>
-
-        <div class="suggestions-list">
-          <div class="small-title">All Suggestions</div>
-          ${
-            entry.suggestions && entry.suggestions.length
-              ? entry.suggestions
-                  .map(
-                    (s) => `
-                    <div class="suggestion-card">
-                      <strong>Status:</strong> ${escapeHtml(s.status)}<br>
-                      ${escapeHtml(s.text)}
-                    </div>
-                  `
-                  )
-                  .join("")
-              : `<div class="empty-box">Is entry par abhi koi suggestion nahi hai.</div>`
-          }
         </div>
       `;
+    })
+    .join("");
+
+  messagesBox.scrollTop = messagesBox.scrollHeight;
+}
+
+async function sendReply() {
+  const selected = conversations.find(
+    (c) => getId(c) === selectedConversationId
+  );
+
+  if (!selected || selected.status === "closed") {
+    alert("Ye chat closed hai. Reply allowed nahi hai.");
+    return;
+  }
+
+  try {
+    const replyInput = document.getElementById("replyText");
+    const replyText = replyInput.value.trim();
+    if (!replyText || !selectedConversationId) return;
+
+    const res = await fetch("/api/admin/reply", {
+      method: "POST",
+      headers: adminHeaders({
+        "Content-Type": "application/json"
+      }),
+      body: JSON.stringify({
+        conversationId: selectedConversationId,
+        text: replyText
+      })
+    });
+
+    const data = await res.json();
+
+    if (!res.ok || !data.success) {
+      alert(data.message || "Reply bhejne me issue aaya.");
+      return;
     }
 
-    async function reviewWriteEntry(action) {
-      const entry = writeEntries.find((e) => getId(e) === selectedWriteId);
-      if (!entry) return;
+    replyInput.value = "";
+    await loadConversations();
+    renderMessages();
+  } catch (err) {
+    console.error("Send reply error:", err);
+    alert("Reply bhejne me issue aaya.");
+  }
+}
 
-      try {
-        const res = await fetch(`/api/admin/write/${getId(entry)}/review`, {
-          method: "POST",
-          headers: adminHeaders({
-            "Content-Type": "application/json"
-          }),
-          body: JSON.stringify({ action })
-        });
-
-        const data = await res.json();
-
-        if (!res.ok || !data.success) {
-          alert(data.message || "Review update nahi hua.");
-          return;
-        }
-
-        await loadWriteEntries();
-      } catch (err) {
-        console.error("Review write entry error:", err);
-        alert("Review update nahi hua.");
-      }
-    }
-
-    function buildPendingSuggestions() {
-      pendingSuggestions = [];
-
-      writeEntries.forEach((entry) => {
-        (entry.suggestions || []).forEach((suggestion) => {
-          if (suggestion.status === "pending") {
-            pendingSuggestions.push({
-              entryId: getId(entry),
-              entryText: entry.text,
-              username: entry.username || "",
-              language: entry.language || "hinglish",
-              gender: entry.gender || "",
-              suggestionId: suggestion._id,
-              suggestionText: suggestion.text,
-              suggestionStatus: suggestion.status
-            });
-          }
-        });
-      });
-
-      if (!selectedSuggestionKey && pendingSuggestions.length > 0) {
-        selectedSuggestionKey = `${pendingSuggestions[0].entryId}_${pendingSuggestions[0].suggestionId}`;
-      }
-
-      const stillExists = pendingSuggestions.some(
-        (item) => `${item.entryId}_${item.suggestionId}` === selectedSuggestionKey
-      );
-
-      if (!stillExists && pendingSuggestions.length > 0) {
-        selectedSuggestionKey = `${pendingSuggestions[0].entryId}_${pendingSuggestions[0].suggestionId}`;
-      }
-
-      renderSuggestionList();
-      renderSuggestionDetails();
-      updateTopStats();
-    }
-
-    function renderSuggestionList() {
-      const list = document.getElementById("suggestionList");
-      list.innerHTML = "";
-
-      if (!pendingSuggestions.length) {
-        list.innerHTML = `<div class="empty-box">Abhi koi pending suggestion nahi hai.</div>`;
-        return;
-      }
-
-      pendingSuggestions.forEach((item) => {
-        const key = `${item.entryId}_${item.suggestionId}`;
-        const div = document.createElement("div");
-        div.className = "suggestion-item" + (key === selectedSuggestionKey ? " active" : "");
-
-        const preview =
-          item.suggestionText.length > 80
-            ? item.suggestionText.slice(0, 80) + "..."
-            : item.suggestionText;
-
-        div.innerHTML = `
-          <div class="item-title">
-            <span class="mini-avatar">${getInitial(item.username)}</span>
-            <span>${prettyValue(item.username, "Anonymous")} • Entry #${String(item.entryId).slice(-6)}</span>
-          </div>
-          <div class="item-preview">${escapeHtml(preview)}</div>
-          <div class="muted">${prettyLanguage(item.language)} • ${prettyGender(item.gender)}</div>
-        `;
-
-        div.onclick = () => {
-          selectedSuggestionKey = key;
-          renderSuggestionList();
-          renderSuggestionDetails();
-        };
-
-        list.appendChild(div);
-      });
-    }
-
-    function renderSuggestionDetails() {
-      const wrap = document.getElementById("suggestionDetails");
-
-      const item = pendingSuggestions.find(
-        (x) => `${x.entryId}_${x.suggestionId}` === selectedSuggestionKey
-      );
-
-      if (!item) {
-        wrap.innerHTML = `<div class="empty-box">Koi suggestion select karo.</div>`;
-        return;
-      }
-
-      wrap.innerHTML = `
-        <div class="meta-box">
-          <div><strong>Entry ID:</strong> ${escapeHtml(item.entryId)}</div>
-          <div><strong>Username:</strong> ${prettyValue(item.username, "Anonymous")}</div>
-          <div><strong>Language:</strong> ${prettyLanguage(item.language)}</div>
-          <div><strong>Gender:</strong> ${prettyGender(item.gender)}</div>
-          <div><strong>Suggestion ID:</strong> ${escapeHtml(item.suggestionId)}</div>
-          <div><strong>Status:</strong> ${escapeHtml(item.suggestionStatus)}</div>
-        </div>
-
-        <div class="small-title">Original Entry</div>
-        <div class="write-full" style="margin-bottom: 14px;">${escapeHtml(item.entryText)}</div>
-
-        <div class="small-title">Suggestion</div>
-        <div class="write-full">${escapeHtml(item.suggestionText)}</div>
-
-        <div class="action-row">
-          <button class="action-btn" onclick="reviewSuggestion('approved')">Approve Suggestion</button>
-          <button class="action-btn danger" onclick="reviewSuggestion('rejected')">Reject Suggestion</button>
-        </div>
-      `;
-    }
-
-    async function reviewSuggestion(action) {
-      const item = pendingSuggestions.find(
-        (x) => `${x.entryId}_${x.suggestionId}` === selectedSuggestionKey
-      );
-
-      if (!item) return;
-
-      try {
-        const res = await fetch(
-          `/api/admin/write/${item.entryId}/suggestion/${item.suggestionId}/review`,
-          {
-            method: "POST",
-            headers: adminHeaders({
-              "Content-Type": "application/json"
-            }),
-            body: JSON.stringify({ action })
-          }
-        );
-
-        const data = await res.json();
-
-        if (!res.ok || !data.success) {
-          alert(data.message || "Suggestion review update nahi hua.");
-          return;
-        }
-
-        await loadWriteEntries();
-      } catch (err) {
-        console.error("Review suggestion error:", err);
-        alert("Suggestion review update nahi hua.");
-      }
-    }
-
-    function toggleReplyComposer() {
+function toggleReplyComposer() {
       const selected = conversations.find(
         (c) => getId(c) === selectedConversationId
       );
@@ -1679,8 +1432,15 @@ function renderMessages() {
       updateTopStats();
     }
 
-   initialLoad();
-  }
+    const ADMIN_AUTO_REFRESH_MS = 4000;
+    initialLoad();
+    setInterval(() => {
+      const activeAudio = document.querySelector(".admin-audio-player");
+      if (document.hidden) return;
+      if (activeAudio && !activeAudio.paused && !activeAudio.ended) return;
+      loadConversations();
+      loadFeedbackEntries();
+    }, ADMIN_AUTO_REFRESH_MS);
 </script>
 </body>
 </html>
