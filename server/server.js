@@ -626,9 +626,6 @@ app.post("/api/voice", optionalAuthMiddleware, upload.single("audio"), async (re
       });
     }
 
-    const uploaded = await uploadBufferToCloudinary(req.file.buffer);
-    const audioUrl = uploaded.secure_url;
-
     let conversation = null;
 
     if (conversationId && mongoose.Types.ObjectId.isValid(conversationId)) {
@@ -652,6 +649,25 @@ app.post("/api/voice", optionalAuthMiddleware, upload.single("audio"), async (re
       });
     }
 
+    const alreadyHasUserVoiceNote = (conversation.messages || []).some(
+      (msg) =>
+        msg.sender === "user" &&
+        msg.audioUrl &&
+        String(msg.audioUrl).trim() !== ""
+    );
+
+    if (alreadyHasUserVoiceNote) {
+      return res.status(403).json({
+        success: false,
+        code: "VOICE_LIMIT_REACHED",
+        message:
+          "You’ve already used your free voice note in this chat. You can still continue typing — I’m here with you. 💜"
+      });
+    }
+
+    const uploaded = await uploadBufferToCloudinary(req.file.buffer);
+    const audioUrl = uploaded.secure_url;
+
     conversation.messages.push({
       sender: "user",
       text: "",
@@ -672,7 +688,9 @@ app.post("/api/voice", optionalAuthMiddleware, upload.single("audio"), async (re
     return res.json({
       success: true,
       conversationId: conversation._id,
-      audioUrl
+      audioUrl,
+      message:
+        "Your voice note has been shared safely. For now, this chat supports one free voice note. You can continue by text anytime. More voice features are coming soon. 🌙"
     });
   } catch (err) {
     console.error("Voice route error:", err);
