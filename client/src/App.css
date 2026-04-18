@@ -1488,3 +1488,62 @@ textarea::placeholder {
   background: rgba(124,58,237,0.1);
   transform: scale(1.2);
 }
+
+.disabled-mic,
+.chat-composer-icon:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
+.voice-note-info {
+  margin-top: 8px;
+  padding: 0 6px;
+  font-size: 0.82rem;
+  line-height: 1.5;
+  color: var(--text-soft);
+  text-align: left;
+}
+
+.mic-icon-wrap {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.mic-cross-line {
+  position: absolute;
+  width: 26px;
+  height: 2.5px;
+  background: #ff4d4f;
+  transform: rotate(-35deg);
+  border-radius: 999px;
+}
+
+.crossed-mic .mic-icon-wrap {
+  opacity: 0.95;
+}
+
+.app-wrapper {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+}
+
+.app-container {
+  width: 100%;
+  max-width: 420px; /* mobile width lock */
+}
+
+@media (min-width: 768px) {
+  .app-container {
+    max-width: 480px;
+  }
+}
+
+@media (min-width: 1024px) {
+  .app-container {
+    max-width: 500px;
+  }
+}

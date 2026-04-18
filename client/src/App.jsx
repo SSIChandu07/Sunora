@@ -235,6 +235,10 @@ function App() {
   const [isRecording, setIsRecording] = useState(false);
   const [recordingSeconds, setRecordingSeconds] = useState(0);
   const [audioPreviewUrl, setAudioPreviewUrl] = useState("");
+  const [hasUsedFreeVoiceNote, setHasUsedFreeVoiceNote] = useState(false);
+const [voiceLimitMessage, setVoiceLimitMessage] = useState(
+  "You can send one voice note in this chat. Take your time, say whatever you want. 💜"
+);
   const mediaRecorderRef = useRef(null);
   const audioChunksRef = useRef([]);
   const recordingTimerRef = useRef(null);
@@ -288,50 +292,84 @@ function App() {
     const secs = (seconds % 60).toString().padStart(2, "0");
     return `${mins}:${secs}`;
   };
+  const syncVoiceLimitFromMessages = (messageList = []) => {
+  const used = (messageList || []).some(
+    (msg) =>
+      msg.sender === "user" &&
+      msg.audioUrl &&
+      String(msg.audioUrl).trim() !== ""
+  );
 
+  setHasUsedFreeVoiceNote(used);
+
+  if (used) {
+    setVoiceLimitMessage(
+      "You’ve used your free voice note in this chat. You can still continue typing anytime. 💜"
+    );
+  } else {
+    setVoiceLimitMessage(
+      "You can send one voice note in this chat. Take your time, say whatever you want. 💜"
+    );
+  }
+};
+const voiceNoteAlreadyUsedInUI =
+  hasUsedFreeVoiceNote ||
+  messages.some(
+    (msg) =>
+      msg.sender === "user" &&
+      msg.audioUrl &&
+      String(msg.audioUrl).trim() !== ""
+  );
   const startVoiceRecording = async () => {
-    try {
-      if (!navigator.mediaDevices || !window.MediaRecorder) {
-        alert("Voice note is not supported in this browser.");
-        return;
-      }
-
-      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-      const mediaRecorder = new MediaRecorder(stream);
-
-      mediaRecorderRef.current = mediaRecorder;
-      audioChunksRef.current = [];
-      setAudioPreviewUrl("");
-      setRecordingSeconds(0);
-
-      mediaRecorder.ondataavailable = (event) => {
-        if (event.data.size > 0) {
-          audioChunksRef.current.push(event.data);
-        }
-      };
-
-      mediaRecorder.onstop = () => {
-        const audioBlob = new Blob(audioChunksRef.current, {
-          type: "audio/webm"
-        });
-
-        const previewUrl = URL.createObjectURL(audioBlob);
-        setAudioPreviewUrl(previewUrl);
-
-        stream.getTracks().forEach((track) => track.stop());
-      };
-
-      mediaRecorder.start();
-      setIsRecording(true);
-
-      recordingTimerRef.current = setInterval(() => {
-        setRecordingSeconds((prev) => prev + 1);
-      }, 1000);
-    } catch (err) {
-      console.error("Voice recording error:", err);
-      alert("Mic permission allow karo bhai.");
+  try {
+    if (voiceNoteAlreadyUsedInUI) {
+      alert(
+        "You’ve already used your free voice note in this chat. You can still continue typing anytime. 💜"
+      );
+      return;
     }
-  };
+
+    if (!navigator.mediaDevices || !window.MediaRecorder) {
+      alert("Voice note is not supported in this browser.");
+      return;
+    }
+
+    const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+    const mediaRecorder = new MediaRecorder(stream);
+
+    mediaRecorderRef.current = mediaRecorder;
+    audioChunksRef.current = [];
+    setAudioPreviewUrl("");
+    setRecordingSeconds(0);
+
+    mediaRecorder.ondataavailable = (event) => {
+      if (event.data.size > 0) {
+        audioChunksRef.current.push(event.data);
+      }
+    };
+
+    mediaRecorder.onstop = () => {
+      const audioBlob = new Blob(audioChunksRef.current, {
+        type: "audio/webm"
+      });
+
+      const previewUrl = URL.createObjectURL(audioBlob);
+      setAudioPreviewUrl(previewUrl);
+
+      stream.getTracks().forEach((track) => track.stop());
+    };
+
+    mediaRecorder.start();
+    setIsRecording(true);
+
+    recordingTimerRef.current = setInterval(() => {
+      setRecordingSeconds((prev) => prev + 1);
+    }, 1000);
+  } catch (err) {
+    console.error("Voice recording error:", err);
+    alert("Mic permission allow karo bhai.");
+  }
+};
 
   const stopVoiceRecording = () => {
     if (mediaRecorderRef.current && mediaRecorderRef.current.state !== "inactive") {
@@ -360,60 +398,84 @@ function App() {
     audioChunksRef.current = [];
   };
 
-  const sendVoiceNote = async () => {
-    if (!audioChunksRef.current.length) return;
+ const sendVoiceNote = async () => {
+  if (!audioChunksRef.current.length) return;
 
-    const audioBlob = new Blob(audioChunksRef.current, {
-      type: "audio/webm"
+  if (voiceNoteAlreadyUsedInUI) {
+    alert(
+      "You’ve already used your free voice note in this chat. You can still continue typing — I’m here with you. 💜"
+    );
+    setAudioPreviewUrl("");
+    setRecordingSeconds(0);
+    audioChunksRef.current = [];
+    return;
+  }
+
+  const audioBlob = new Blob(audioChunksRef.current, {
+    type: "audio/webm"
+  });
+
+  const tempUrl = URL.createObjectURL(audioBlob);
+
+  setMessages((prev) => [
+    ...prev,
+    {
+      sender: "user",
+      audioUrl: tempUrl
+    }
+  ]);
+
+  setIsSupportTyping(true);
+
+  try {
+    const formData = new FormData();
+    formData.append("audio", audioBlob, "voice-note.webm");
+    formData.append("conversationId", conversationId || "");
+    formData.append("username", profile.username || "");
+    formData.append("language", profile.language || "");
+    formData.append("gender", profile.gender || "");
+
+    const res = await fetch(`${API_BASE}/api/voice`, {
+      method: "POST",
+      headers: {
+        ...getAuthHeaders()
+      },
+      body: formData
     });
 
-    const tempUrl = URL.createObjectURL(audioBlob);
+    const data = await res.json();
 
-    setMessages((prev) => [
-      ...prev,
-      {
-        sender: "user",
-        audioUrl: tempUrl
-      }
-    ]);
-
-    setIsSupportTyping(true);
-
-    try {
-      const formData = new FormData();
-      formData.append("audio", audioBlob, "voice-note.webm");
-      formData.append("conversationId", conversationId || "");
-      formData.append("username", profile.username || "");
-      formData.append("language", profile.language || "");
-      formData.append("gender", profile.gender || "");
-
-      const res = await fetch(`${API_BASE}/api/voice`, {
-        method: "POST",
-        headers: {
-          ...getAuthHeaders()
-        },
-        body: formData
-      });
-
-      const data = await res.json();
-
-      if (data.success && data.conversationId) {
-        setConversationId(data.conversationId);
-        localStorage.setItem("conversationId", data.conversationId);
-      }
-    } catch (err) {
-      console.error("Voice note save error:", err);
-      alert("Voice note bhejne me issue aaya.");
-    } finally {
+    if (!res.ok || !data.success) {
+      setMessages((prev) => prev.filter((msg) => msg.audioUrl !== tempUrl));
+      alert(data.message || "Voice note bhejne me issue aaya.");
       setAudioPreviewUrl("");
       setRecordingSeconds(0);
       audioChunksRef.current = [];
-      setTimeout(() => {
-        setIsSupportTyping(false);
-      }, 1500);
+      return;
     }
-  };
 
+    if (data.conversationId) {
+      setConversationId(data.conversationId);
+      localStorage.setItem("conversationId", data.conversationId);
+    }
+
+    setHasUsedFreeVoiceNote(true);
+    setVoiceLimitMessage(
+      "Your voice note has been shared safely. For now, this chat supports one free voice note. You can continue by text anytime. More voice features are coming soon. 🌙"
+    );
+  } catch (err) {
+    console.error("Voice note save error:", err);
+    setMessages((prev) => prev.filter((msg) => msg.audioUrl !== tempUrl));
+    alert("Voice note bhejne me issue aaya.");
+  } finally {
+    setAudioPreviewUrl("");
+    setRecordingSeconds(0);
+    audioChunksRef.current = [];
+    setTimeout(() => {
+      setIsSupportTyping(false);
+    }, 1000);
+  }
+};
   const saveAuth = (token, user) => {
     localStorage.setItem("token", token);
     localStorage.setItem("user", JSON.stringify(user));
@@ -666,38 +728,42 @@ function App() {
   };
 
   const resetChatState = () => {
-    if (audioPreviewUrl) {
-      URL.revokeObjectURL(audioPreviewUrl);
+  if (audioPreviewUrl) {
+    URL.revokeObjectURL(audioPreviewUrl);
+  }
+
+  setText("");
+  setConversationId(null);
+  setMessages([
+    {
+      sender: "support",
+      text: getInitialSupportMessage()
     }
+  ]);
+  setShowEndModal(false);
+  setShowFeedbackBox(false);
+  setShowChatEmojiPicker(false);
+  setShowThemeMenu(false);
+  setShowEmojiPanel(false);
+  setIsSupportTyping(false);
+  setIsRecording(false);
+  setRecordingSeconds(0);
+  setAudioPreviewUrl("");
+  audioChunksRef.current = [];
 
-    setText("");
-    setConversationId(null);
-    setMessages([
-      {
-        sender: "support",
-        text: getInitialSupportMessage()
-      }
-    ]);
-    setShowEndModal(false);
-    setShowFeedbackBox(false);
-    setShowChatEmojiPicker(false);
-    setShowThemeMenu(false);
-    setShowEmojiPanel(false);
-    setIsSupportTyping(false);
-    setIsRecording(false);
-    setRecordingSeconds(0);
-    setAudioPreviewUrl("");
-    audioChunksRef.current = [];
+  if (recordingTimerRef.current) {
+    clearInterval(recordingTimerRef.current);
+    recordingTimerRef.current = null;
+  }
 
-    if (recordingTimerRef.current) {
-      clearInterval(recordingTimerRef.current);
-      recordingTimerRef.current = null;
-    }
-
-    setRating("5");
-    setReview("");
-    localStorage.removeItem("conversationId");
-  };
+  setRating("5");
+  setReview("");
+  setHasUsedFreeVoiceNote(false);
+  setVoiceLimitMessage(
+    "You can send one voice note in this chat. Take your time, say whatever you want. 💜"
+  );
+  localStorage.removeItem("conversationId");
+};
 
   const closeConversationOnServer = async () => {
     try {
@@ -759,6 +825,7 @@ function App() {
       setConversationId(conv._id);
       localStorage.setItem("conversationId", conv._id);
       setMessages(conv.messages || []);
+      syncVoiceLimitFromMessages(conv.messages || []);
       setScreen("chat");
     } catch (err) {
       console.error("Start chat error:", err);
@@ -775,6 +842,7 @@ function App() {
         setConversationId(id);
         localStorage.setItem("conversationId", id);
         setMessages(data.conversation.messages || []);
+        syncVoiceLimitFromMessages(data.conversation.messages || []);
         setScreen("chat");
       }
     } catch (err) {
@@ -822,6 +890,7 @@ function App() {
     } finally {
       setFeedbackSubmitting(false);
     }
+  
   };
 
   const addEmojiToWrite = (emoji) => {
@@ -1028,34 +1097,34 @@ function App() {
         const data = await res.json();
 
         if (data.success && data.conversation) {
-       setMessages((prev) => {
   const newMsgs = data.conversation.messages || [];
 
-  // agar length same hai aur content bhi same hai → update mat kar
-  if (
-    prev.length === newMsgs.length &&
-    JSON.stringify(prev) === JSON.stringify(newMsgs)
-  ) {
-    return prev;
+  setMessages((prev) => {
+    if (
+      prev.length === newMsgs.length &&
+      JSON.stringify(prev) === JSON.stringify(newMsgs)
+    ) {
+      return prev;
+    }
+
+    return newMsgs;
+  });
+
+  syncVoiceLimitFromMessages(newMsgs);
+
+  const lastMsg = newMsgs[newMsgs.length - 1];
+
+  if (lastMsg?.sender === "support") {
+    setIsSupportTyping(false);
   }
-
-  return newMsgs;
-});
-
-          const lastMsg =
-            data.conversation.messages?.[data.conversation.messages.length - 1];
-
-          if (lastMsg?.sender === "support") {
-            setIsSupportTyping(false);
-          }
-        }
+}
       } catch (err) {
         console.error("Conversation fetch error:", err);
       }
     };
 
     fetchConversation();
-    const interval = setInterval(fetchConversation, 6000);
+    const interval = setInterval(fetchConversation, 2000);
 
     return () => clearInterval(interval);
   }, [conversationId, screen]);
@@ -1686,16 +1755,20 @@ function App() {
                   </div>
                 )}
 
-                {!isRecording && !audioPreviewUrl && (
-                  <button
-                    className={`chat-composer-icon mic-btn`}
-                    type="button"
-                    onClick={startVoiceRecording}
-                    title="Voice note"
-                  >
-                    🎙️
-                  </button>
-                )}
+               {!isRecording && !audioPreviewUrl && (
+  <button
+    className={`chat-composer-icon mic-btn ${voiceNoteAlreadyUsedInUI ? "disabled-mic crossed-mic" : ""}`}
+    type="button"
+    onClick={startVoiceRecording}
+    title={voiceNoteAlreadyUsedInUI ? "Free voice note already used" : "Voice note"}
+    disabled={voiceNoteAlreadyUsedInUI}
+  >
+    <span className="mic-icon-wrap">
+      🎙️
+      {voiceNoteAlreadyUsedInUI && <span className="mic-cross-line"></span>}
+    </span>
+  </button>
+)}
 
                 {isRecording && (
                   <button
@@ -1719,7 +1792,9 @@ function App() {
                   </button>
                 )}
               </div>
-
+<div className="voice-note-info">
+  {voiceLimitMessage}
+</div>
               <p className="login-hint chat-login-hint">{t.loginHint}</p>
             </div>
 
