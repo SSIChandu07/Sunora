@@ -8,11 +8,10 @@ const cors = require("cors");
 const mongoose = require("mongoose");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
-const path = require("path");
-const fs = require("fs");
 const multer = require("multer");
 
 const app = express();
+
 cloudinary.config({
   cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
   api_key: process.env.CLOUDINARY_API_KEY,
@@ -24,7 +23,7 @@ app.set("trust proxy", 1);
 app.use(cors());
 app.use(express.json());
 app.use("/admin", express.static("admin"));
-app.use("/uploads", express.static("uploads"));
+
 console.log("ENV CHECK =", process.env.MONGODB_URI);
 
 mongoose
@@ -142,6 +141,7 @@ const upload = multer({
     fileSize: 15 * 1024 * 1024
   }
 });
+
 function uploadBufferToCloudinary(buffer, folder = "sunora/voice-notes") {
   return new Promise((resolve, reject) => {
     const uploadStream = cloudinary.uploader.upload_stream(
@@ -160,22 +160,6 @@ function uploadBufferToCloudinary(buffer, folder = "sunora/voice-notes") {
   });
 }
 
-function uploadToCloudinary(buffer) {
-  return new Promise((resolve, reject) => {
-    const stream = cloudinary.uploader.upload_stream(
-      {
-        resource_type: "video",
-        folder: "sunora/voice-notes"
-      },
-      (error, result) => {
-        if (error) return reject(error);
-        resolve(result);
-      }
-    );
-
-    streamifier.createReadStream(buffer).pipe(stream);
-  });
-}
 /* ================= SCHEMAS ================= */
 
 const messageSchema = new mongoose.Schema({
@@ -698,6 +682,7 @@ app.post("/api/voice", optionalAuthMiddleware, upload.single("audio"), async (re
     });
   }
 });
+
 /* ===== GET CONVERSATION ===== */
 app.get("/api/conversation/:id", async (req, res) => {
   try {
