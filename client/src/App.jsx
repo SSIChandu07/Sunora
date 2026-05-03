@@ -698,26 +698,37 @@ const voiceNoteAlreadyUsedInUI =
 
       saveAuth(data.token, data.user);
 
-      if (authTarget === "link_current_chat") {
-        await linkCurrentConversationToUser();
-        await loadMyChats();
-        setScreen("chat");
-      } else if (authTarget === "chat_history") {
-        await linkCurrentConversationToUser();
-        await loadMyChats();
-        setScreen("myChats");
-      } else if (authTarget === "write_history") {
-        await loadMyWrites();
-        setScreen("myWrites");
-      } else {
-        setScreen("home");
-      }
+if (authTarget === "link_current_chat") {
+  await linkCurrentConversationToUser();
 
-      setAuthForm({
-        name: "",
-        email: "",
-        password: ""
-      });
+  const pendingClose = localStorage.getItem("pendingChatClose");
+
+  if (pendingClose === "true") {
+    localStorage.removeItem("pendingChatClose");
+
+    await closeConversationOnServer();
+    resetChatState();
+    setScreen("home");
+  } else {
+    await loadMyChats();
+    setScreen("chat");
+  }
+} else if (authTarget === "chat_history") {
+  await linkCurrentConversationToUser();
+  await loadMyChats();
+  setScreen("myChats");
+} else if (authTarget === "write_history") {
+  await loadMyWrites();
+  setScreen("myWrites");
+} else {
+  setScreen("home");
+}
+
+setAuthForm({
+  name: "",
+  email: "",
+  password: ""
+});
 
       setAuthTarget("home");
     } catch (err) {
@@ -884,14 +895,27 @@ const voiceNoteAlreadyUsedInUI =
   const confirmEnd = window.confirm("Are you sure you want to end this chat?");
   if (!confirmEnd) return;
 
-  await closeConversationOnServer();
+  const token = localStorage.getItem("token");
+
+  // 🔥 FIX: localStorage check bhi add karo
+  if (currentUser || token) {
+    await closeConversationOnServer();
+    resetChatState();
+    setScreen("home");
+    return;
+  }
+
+  // guest user
   setShowEndModal(true);
 };
   const goToLogin = async () => {
-    setShowEndModal(false);
-    requestAuth("link_current_chat");
-  };
+  setShowEndModal(false);
 
+  // 🔥 ensure chat context save rahe
+  localStorage.setItem("pendingChatClose", "true");
+
+  requestAuth("link_current_chat");
+};
   const submitFeedback = async () => {
     try {
       setFeedbackSubmitting(true);
@@ -1839,7 +1863,7 @@ const voiceNoteAlreadyUsedInUI =
               <p className="login-hint chat-login-hint">{t.loginHint}</p>
             </div>
 
-            {showEndModal && (
+            {showEndModal && !currentUser && (
               <div className="modal-overlay" onClick={() => setShowEndModal(false)}>
                 <div className="modal-box" onClick={(e) => e.stopPropagation()}>
                   <h3>{t.chatEnded} 💬</h3>
