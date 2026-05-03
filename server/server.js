@@ -9,7 +9,8 @@ const mongoose = require("mongoose");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const multer = require("multer");
-
+const nodemailer = require("nodemailer");
+const crypto = require("crypto");
 const app = express();
 
 cloudinary.config({
@@ -38,7 +39,13 @@ mongoose
 /* ================= HELPERS ================= */
 
 const JWT_SECRET = process.env.JWT_SECRET || "sunora_secret_key_change_this";
-
+const transporter = nodemailer.createTransport({
+  service: "gmail",
+  auth: {
+    user: process.env.EMAIL_USER,
+    pass: process.env.EMAIL_PASS
+  }
+});
 const getSupportMessageByLanguage = (language) => {
   if (language === "english") return "I'm here. Take your time.";
   if (language === "hindi") return "मैं यहीं हूँ। आराम से बोलिए।";
@@ -200,7 +207,19 @@ const userSchema = new mongoose.Schema(
     password: {
       type: String,
       required: true
-    }
+    },
+    isVerified: {
+  type: Boolean,
+  default: false
+},
+verificationToken: {
+  type: String,
+  default: ""
+},
+verificationTokenExpires: {
+  type: Date,
+  default: null
+}
   },
   { timestamps: true }
 );
@@ -365,23 +384,40 @@ app.post("/api/auth/signup", async (req, res) => {
     }
 
     const hashedPassword = await bcrypt.hash(password, 10);
+    const verificationToken = crypto.randomBytes(32).toString("hex");
 
     const user = await User.create({
       name: name.trim(),
       email: email.trim().toLowerCase(),
-      password: hashedPassword
+      password: hashedPassword,
+      isVerified: false,
+      verificationToken,
+      verificationTokenExpires: Date.now() + 24 * 60 * 60 * 1000
     });
 
-    const token = createToken(user._id);
+    const verifyUrl = `${process.env.FRONTEND_URL}/verify-email?token=${verificationToken}`;
+
+    await transporter.sendMail({
+      from: process.env.EMAIL_USER,
+      to: user.email,
+      subject: "Verify your email - Sunora",
+      html: `
+        <div style="font-family: Arial, sans-serif; line-height: 1.6;">
+          <h2>Welcome to Sunora 💜</h2>
+          <p>Click the button below to verify your email:</p>
+          <p>
+            <a href="${verifyUrl}" style="display:inline-block;padding:10px 18px;background:#7c3aed;color:#fff;text-decoration:none;border-radius:8px;">
+              Verify Email
+            </a>
+          </p>
+          <p>This link will expire in 24 hours.</p>
+        </div>
+      `
+    });
 
     res.json({
       success: true,
-      token,
-      user: {
-        id: user._id,
-        name: user.name,
-        email: user.email
-      }
+      message: "Account created. Please verify your email before logging in."
     });
   } catch (err) {
     console.error("Signup error:", err);
@@ -391,7 +427,6 @@ app.post("/api/auth/signup", async (req, res) => {
     });
   }
 });
-
 /* ===== AUTH: LOGIN ===== */
 app.post("/api/auth/login", async (req, res) => {
   try {
@@ -412,17 +447,24 @@ app.post("/api/auth/login", async (req, res) => {
     }
 
     const user = await User.findOne({
-      email: email.trim().toLowerCase()
-    });
+  email: email.trim().toLowerCase()
+});
 
-    if (!user) {
-      return res.status(400).json({
-        success: false,
-        message: "Invalid email or password"
-      });
-    }
+if (!user) {
+  return res.status(400).json({
+    success: false,
+    message: "Invalid email or password"
+  });
+}
 
-    const isMatch = await bcrypt.compare(password, user.password);
+if (!user.isVerified) {
+  return res.status(400).json({
+    success: false,
+    message: "Please verify your email first"
+  });
+}
+
+const isMatch = await bcrypt.compare(password, user.password);
 
     if (!isMatch) {
       return res.status(400).json({
@@ -495,6 +537,44 @@ app.post("/api/admin/login", (req, res) => {
     success: false,
     message: "Invalid admin credentials"
   });
+});
+
+app.get("/api/auth/verify-email", async (req, res) => {
+  try {
+    const { token } = req.query;
+
+    if (!token) {
+      return res.status(400).json({
+        success: false,
+        message: "Verification token missing"
+      });
+    }
+
+    const user = await User.findOne({
+      verificationToken: token,
+      verificationTokenExpires: { $gt: Date.now() }
+    });
+
+    if (!user) {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid or expired verification link"
+      });
+    }
+
+    user.isVerified = true;
+    user.verificationToken = "";
+    user.verificationTokenExpires = null;
+    await user.save();
+
+    return res.redirect(`${process.env.FRONTEND_URL}/?verified=true`);
+  } catch (err) {
+    console.error("Verify email error:", err);
+    return res.status(500).json({
+      success: false,
+      message: "Server error"
+    });
+  }
 });
 
 /* ===== START CHAT ===== */

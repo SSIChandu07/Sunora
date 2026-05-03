@@ -780,13 +780,33 @@ setAuthForm({
   const closeConversationOnServer = async () => {
     try {
       const id = conversationId || localStorage.getItem("conversationId");
-      if (id) {
-        await fetch(`${API_BASE}/api/conversation/${id}/close`, {
-          method: "POST"
-        });
+
+      if (!id) {
+        console.warn("No conversationId found to close.");
+        return false;
       }
+
+      const res = await fetch(`${API_BASE}/api/conversation/${id}/close`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          ...getAuthHeaders()
+        }
+      });
+
+      const data = await res.json().catch(() => ({}));
+
+      if (!res.ok || data.success === false) {
+        console.error("Close conversation failed:", data);
+        alert(data.message || "Chat close karne me issue aaya.");
+        return false;
+      }
+
+      return true;
     } catch (err) {
       console.error("Close conversation error:", err);
+      alert("Chat close karne me issue aaya.");
+      return false;
     }
   };
 
@@ -897,15 +917,19 @@ setAuthForm({
 
   const token = localStorage.getItem("token");
 
-  // 🔥 FIX: localStorage check bhi add karo
+  // logged-in user: close directly and update admin status
   if (currentUser || token) {
-    await closeConversationOnServer();
-    resetChatState();
-    setScreen("home");
+    const closed = await closeConversationOnServer();
+
+    if (closed) {
+      resetChatState();
+      setScreen("home");
+    }
+
     return;
   }
 
-  // guest user
+  // guest user: show login/guest modal, close will happen after feedback/login flow
   setShowEndModal(true);
 };
   const goToLogin = async () => {
@@ -922,7 +946,7 @@ setAuthForm({
 
       const id = conversationId || localStorage.getItem("conversationId");
 
-      await fetch(`${API_BASE}/api/feedback`, {
+      const feedbackRes = await fetch(`${API_BASE}/api/feedback`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -935,6 +959,17 @@ setAuthForm({
         })
       });
 
+      const feedbackData = await feedbackRes.json().catch(() => ({}));
+
+      if (!feedbackRes.ok || feedbackData.success === false) {
+        console.error("Feedback submit failed:", feedbackData);
+        alert(feedbackData.message || "Feedback submit nahi hua.");
+        return;
+      }
+
+      // guest feedback ke baad bhi conversation admin me closed ho jayegi
+      await closeConversationOnServer();
+
       alert(t.feedbackThanks);
       resetChatState();
       setScreen("home");
@@ -944,7 +979,6 @@ setAuthForm({
     } finally {
       setFeedbackSubmitting(false);
     }
-  
   };
 
   const addEmojiToWrite = (emoji) => {
@@ -1014,7 +1048,7 @@ setAuthForm({
     if (!currentText) return;
 
     try {
-      await fetch(`${API_BASE}/api/write`, {
+      const res = await fetch(`${API_BASE}/api/write`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -1029,6 +1063,14 @@ setAuthForm({
         })
       });
 
+      const data = await res.json().catch(() => ({}));
+
+      if (!res.ok || data.success === false) {
+        console.error("Write save failed:", data);
+        alert(data.message || "Write save nahi hua.");
+        return;
+      }
+
       setWriteText("");
       setConsentToShare(false);
       setWriteSaved(true);
@@ -1039,6 +1081,7 @@ setAuthForm({
       }, 3000);
     } catch (err) {
       console.error("Write save error:", err);
+      alert("Write save nahi hua.");
     }
   };
 
@@ -1063,26 +1106,32 @@ setAuthForm({
       const res = await fetch(`${API_BASE}/api/read/${entryId}/suggest`, {
         method: "POST",
         headers: {
-          "Content-Type": "application/json"
+          "Content-Type": "application/json",
+          ...getAuthHeaders()
         },
         body: JSON.stringify({ text: currentText })
       });
 
-      const data = await res.json();
+      const data = await res.json().catch(() => ({}));
 
-      if (data.success) {
-        setSuggestions((prev) => ({
-          ...prev,
-          [entryId]: ""
-        }));
-        setSuggestionSavedId(entryId);
-
-        setTimeout(() => {
-          setSuggestionSavedId(null);
-        }, 2500);
+      if (!res.ok || data.success === false) {
+        console.error("Suggestion save failed:", data);
+        alert(data.message || "Suggestion save nahi hua.");
+        return;
       }
+
+      setSuggestions((prev) => ({
+        ...prev,
+        [entryId]: ""
+      }));
+      setSuggestionSavedId(entryId);
+
+      setTimeout(() => {
+        setSuggestionSavedId(null);
+      }, 2500);
     } catch (err) {
       console.error("Suggestion save error:", err);
+      alert("Suggestion save nahi hua.");
     }
   };
 
