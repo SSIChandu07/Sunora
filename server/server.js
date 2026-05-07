@@ -390,14 +390,14 @@ app.post("/api/auth/signup", async (req, res) => {
       name: name.trim(),
       email: email.trim().toLowerCase(),
       password: hashedPassword,
-      isVerified: false,
+      isVerified: true,
       verificationToken,
       verificationTokenExpires: Date.now() + 24 * 60 * 60 * 1000
     });
 
     const verifyUrl = `${process.env.FRONTEND_URL}/verify-email?token=${verificationToken}`;
 
-    await transporter.sendMail({
+    /*await transporter.sendMail({
       from: process.env.EMAIL_USER,
       to: user.email,
       subject: "Verify your email - Sunora",
@@ -413,11 +413,11 @@ app.post("/api/auth/signup", async (req, res) => {
           <p>This link will expire in 24 hours.</p>
         </div>
       `
-    });
+    });*/
 
     res.json({
       success: true,
-      message: "Account created. Please verify your email before logging in."
+      message: "Account created successfully"
     });
   } catch (err) {
     console.error("Signup error:", err);
@@ -457,12 +457,6 @@ if (!user) {
   });
 }
 
-if (!user.isVerified) {
-  return res.status(400).json({
-    success: false,
-    message: "Please verify your email first"
-  });
-}
 
 const isMatch = await bcrypt.compare(password, user.password);
 
