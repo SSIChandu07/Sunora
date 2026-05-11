@@ -2,7 +2,7 @@ require("dotenv").config();
 
 const cloudinary = require("cloudinary").v2;
 const streamifier = require("streamifier");
-
+const axios = require("axios");
 const express = require("express");
 const cors = require("cors");
 const mongoose = require("mongoose");
@@ -37,7 +37,18 @@ mongoose
   });
 
 /* ================= HELPERS ================= */
+async function sendTelegramNotification(message) {
+  try {
+    const url = `https://api.telegram.org/bot${process.env.TELEGRAM_BOT_TOKEN}/sendMessage`;
 
+    await axios.post(url, {
+      chat_id: process.env.TELEGRAM_CHAT_ID,
+      text: message
+    });
+  } catch (err) {
+    console.error("Telegram notification error:", err.message);
+  }
+}
 const JWT_SECRET = process.env.JWT_SECRET || "sunora_secret_key_change_this";
 const transporter = nodemailer.createTransport({
   service: "gmail",
@@ -387,6 +398,7 @@ app.post("/api/auth/signup", async (req, res) => {
     const verificationToken = crypto.randomBytes(32).toString("hex");
 
     const user = await User.create({
+  
       name: name.trim(),
       email: email.trim().toLowerCase(),
       password: hashedPassword,
@@ -394,7 +406,9 @@ app.post("/api/auth/signup", async (req, res) => {
       verificationToken,
       verificationTokenExpires: Date.now() + 24 * 60 * 60 * 1000
     });
-
+await sendTelegramNotification(
+  `🌙 New Sunora Signup\n\nName: ${user.name}\nEmail: ${user.email}`
+);
     const verifyUrl = `${process.env.FRONTEND_URL}/verify-email?token=${verificationToken}`;
 
     /*await transporter.sendMail({
@@ -674,7 +688,9 @@ app.post("/api/message", optionalAuthMiddleware, async (req, res) => {
     }
 
     await conversation.save();
-
+await sendTelegramNotification(
+  `💬 New Message on Sunora\n\nUser: ${conversation.username || "Anonymous"}\nMessage: ${text.trim()}`
+);
     res.json({
       success: true,
       conversationId: conversation._id
